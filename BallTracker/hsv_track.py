@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import cv2
 import numpy as np
 """
@@ -27,7 +29,20 @@ H_LOW = 127, S_LOW = 98, V_LOW = 118
 H_HI = 178, S_HI = 255, V_HI = 255
 SMOOTH=1
 """
-cap = cv2.VideoCapture(0)
+
+"""
+PINK BALL INDOORS C920
+H_LOW = 173, S_LOW = 77, V_LOW = 146
+H_HI = 191, S_HI = 255, V_HI = 255
+SMOOTH=1
+"""
+"""
+OUTISDE LAB PINK BALL C920
+H_LOW = 175, S_LOW = 68, V_LOW = 126
+H_HI = 185, S_HI = 255, V_HI = 247
+SMOOTH=1
+"""
+cap = cv2.VideoCapture(1)
 
 def nothing(x):
     pass
@@ -38,11 +53,11 @@ cv2.namedWindow('result')
 h,s,v = 100,100,100
 
 # Creating track bar
-cv2.createTrackbar('h_low', 'result',0,179,nothing)
+cv2.createTrackbar('h_low', 'result',0,255,nothing)
 cv2.createTrackbar('s_low', 'result',0,255,nothing)
 cv2.createTrackbar('v_low', 'result',0,255,nothing)
 
-cv2.createTrackbar('h_hi', 'result',0,179,nothing)
+cv2.createTrackbar('h_hi', 'result',0,255,nothing)
 cv2.createTrackbar('s_hi', 'result',0,255,nothing)
 cv2.createTrackbar('v_hi', 'result',0,255,nothing)
 
@@ -103,7 +118,8 @@ while(1):
             # draw the center of the circle
             cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
 
-    cv2.imshow('result',result)
+    res = cv2.resize(result,None,fx=0.5, fy=0.5)
+    cv2.imshow('result',res)
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
