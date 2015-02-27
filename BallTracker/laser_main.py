@@ -3,6 +3,7 @@
 import Adafruit_BBIO.UART as UART
 import Adafruit_BBIO.PWM as PWM
 from math import sqrt
+import serial
 
 current_servo_x = 7.5
 current_servo_y = 7.5
@@ -16,7 +17,12 @@ size_to_target = {1:(1,2),
 
 #repeatedly takes measurements with the laser...
 def take_measurements():
-
+    while(true):
+        if(valid):
+            ser.write("*00004#")
+            for x in range(0,3):
+                s = ser.readline()
+                print(s)
 
 # get ball position, change servo position accordingly
 def track_ball():
@@ -44,6 +50,12 @@ def track_ball():
 #Initialize Servo PWM control
 PWM.start(x_servo,current_servo_x,50,0)
 PWM.start(y_servo,current_servo_y,50,0)
+
+#Initialize UART for laser data
+UART.setup("UART1")
+ser = serial.Serial(port = "/dev/ttyO1", baudrate=115200,timeout=1)
+ser.close()
+ser.open()
 
 t = threading.Thread(target=take_measurements)
 t.daemon = True
