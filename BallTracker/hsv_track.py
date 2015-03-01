@@ -42,7 +42,7 @@ H_LOW = 175, S_LOW = 68, V_LOW = 126
 H_HI = 185, S_HI = 255, V_HI = 247
 SMOOTH=1
 """
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 def nothing(x):
     pass
@@ -84,8 +84,8 @@ while(1):
     smooth = cv2.getTrackbarPos('smooth','result')
 
     # Normal masking algorithm
-    lower_blue = np.array([h, s, v])
-    upper_blue = np.array([h_hi, s_hi, v_hi])
+    lower_blue = np.array([127, 98, 118])
+    upper_blue = np.array([178, 255, 255])
     
 
     print("H_LOW = " + str(h) + ", " + "S_LOW = " + str(s) + ", " + "V_LOW = " + str(v))
@@ -108,15 +108,17 @@ while(1):
     print ("SMOOTH=" + str(smooth))
     mask = cv2.GaussianBlur(mask,(15,15),0)
 
-    circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1500, param1 = 50, param2 = 20)
+    circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 20)
     result = cv2.bitwise_and(frame,frame,mask = mask)
 
     if circles != None:
+    	print circles
         for i in circles[0,:]:
             # draw the outer circle
             cv2.circle(result,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
             cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
+            print (i[0], i[1])
 
     res = cv2.resize(result,None,fx=0.5, fy=0.5)
     cv2.imshow('result',res)
