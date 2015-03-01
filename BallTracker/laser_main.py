@@ -1,10 +1,18 @@
-#Laser Gimbal Main Program
-#Bolling/Gola 2015
+#!/usr/bin/python
+
+"""
+Laser Gimbal Main Program
+Bolling/Gola 2015
+"""
+"""
 import Adafruit_BBIO.UART as UART
 import Adafruit_BBIO.PWM as PWM
 from math import sqrt
 import serial
 import threading 
+"""
+import cv2
+import numpy as np
 
 current_servo_x = 7.5
 current_servo_y = 7.5
@@ -49,6 +57,7 @@ def track_ball():
 
 
 #Initialize Servo PWM control
+"""
 PWM.start(x_servo,current_servo_x,50,0)
 PWM.start(y_servo,current_servo_y,50,0)
 
@@ -61,9 +70,47 @@ ser.open()
 t = threading.Thread(target=take_measurements)
 t.daemon = True
 t.start()
+"""
+
+
+cap = cv2.VideoCapture(0)
 
 while 1:
+    h,s,v = 100,100,100
+
+    _, frame = cap.read()
+
+    #converting to HSV
+    hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+
+    # Normal masking algorithm
+    lower_blue = np.array([127, 98, 118])
+    upper_blue = np.array([178, 255, 255])
+
+    mask = cv2.inRange(hsv,lower_blue, upper_blue)
+    kernel_close = np.ones((21,21),np.uint8)
+    kernel_open = np.ones((11, 11), np.uint8)
+    #kernel_erode = np.ones((4, 4), np.uint8)
+    #kernel_dilate = np.ones((8, 8), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel_close)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel_open)
+
+    mask = cv2.GaussianBlur(mask,(15,15),0)
+    circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 20)
+
+    if circles != None:
+        for i in circles[0,:]:
+            # draw the outer circle
+            #cv2.circle(result,(i[0],i[1]),i[2],(0,255,0),2)
+            # draw the center of the circle
+            #cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
+            print (i[0], i[1])
+
+    """
     track_ball()
     PWM.set_duty_cycle(x_servo,current_servo_x)
     PWM.set_duty_cycle(y_servo,current_servo_y)
+    """
+
+cap.release()
 
