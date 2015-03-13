@@ -11,6 +11,7 @@ import serial
 import threading 
 import cv2
 import numpy as np
+import time
 
 current_servo_x = 7.5
 current_servo_y = 7.5
@@ -77,12 +78,22 @@ t.start()
 
 
 cap = cv2.VideoCapture(-1)
-
+before_cap = time.time()
+after_cap = time.time()
+after_masking = time.time()
 while 1:
     h,s,v = 100,100,100
-
+   
+    before_cap = time.time()
+    processing_time = before_cap-after_cap
+    circle_time = before_cap-after_masking
     _, frame = cap.read()
-    print "got frame"
+    after_cap = time.time()
+    cap_time = after_cap-before_cap
+    mask_time = after_masking-after_cap
+
+    print "capture time: {frame}s, mask time: {mask}s, circle time: {circle}s".format(frame=cap_time,mask=mask_time,circle=circle_time)
+
     #converting to HSV
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
 
@@ -99,6 +110,8 @@ while 1:
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel_open)
 
     mask = cv2.GaussianBlur(mask,(15,15),0)
+    
+    after_masking = time.time()
     circles = cv2.HoughCircles(mask,3,1,1600, param1 = 50, param2 = 20)
 
     
