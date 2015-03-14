@@ -4,21 +4,20 @@
 Laser Gimbal Main Program
 Bolling/Gola 2015
 """
-"""
 import Adafruit_BBIO.UART as UART
 import Adafruit_BBIO.PWM as PWM
 from math import sqrt
 import serial
 import threading 
-"""
 import cv2
 import numpy as np
+import time
 
 current_servo_x = 7.5
 current_servo_y = 7.5
 cp = .01
 x_servo = "P9_14"
-y_servo = "P9_16"
+y_servo = "P9_21"
 valid = 0
 size_to_target = {1:(1,2),
                   2:(1,3),
@@ -34,33 +33,38 @@ def take_measurements():
                 print(s)
 
 # get ball position, change servo position accordingly
-def track_ball():
+def track_ball(x, y):
     #Get Ball position
-    x,y,size = 0,0,0
+    #x,y,size = 0,0,0
         
     #Calculate desired ball position based on distance
-    size_int = int(round(size))
-    (target_x,target_y) = size_to_target[size_int]
-    x_err = x - target_x
-    y_err = y - target_y
+    #size_int = int(round(size))
+    (target_x,target_y) = 480/2, 640/2 
+    x_err = target_x - x
+    y_err = target_y - y
 
     #control shit
+    global current_servo_x
+    global current_servo_y
     current_servo_x += x_err*cp
     current_servo_y += y_err*cp
     current_servo_x = min(current_servo_x,10)
     current_servo_x = max(current_servo_x,5)
     current_servo_y = min(current_servo_y,10)
     current_servo_y = max(current_servo_y,5)
+    print x, y, x_err, y_err, current_servo_x, current_servo_y
 
     #check if we're on target
-    valid = sqrt(x_err**2 + y_err**2) < size
-
+    #valid = sqrt(x_err**2 + y_err**2) < size
+    valid = 1
 
 #Initialize Servo PWM control
-"""
+
 PWM.start(x_servo,current_servo_x,50,0)
 PWM.start(y_servo,current_servo_y,50,0)
-
+print "started servo" + x_servo
+print "started servo" + y_servo
+"""
 #Initialize UART for laser data
 UART.setup("UART1")
 ser = serial.Serial(port = "/dev/ttyO1", baudrate=115200,timeout=1)
@@ -72,20 +76,29 @@ t.daemon = True
 t.start()
 """
 
-
-cap = cv2.VideoCapture(1)
-
+cap = cv2.VideoCapture(-1)
+before_cap = time.time()
+after_cap = time.time()
+after_masking = time.time()
 while 1:
     h,s,v = 100,100,100
-
+   
+    before_cap = time.time()
+    processing_time = before_cap-after_cap
+    circle_time = before_cap-after_masking
     _, frame = cap.read()
+    after_cap = time.time()
+    cap_time = after_cap-before_cap
+    mask_time = after_masking-after_cap
+
+    print "capture time: {frame}s, mask time: {mask}s, circle time: {circle}s".format(frame=cap_time,mask=mask_time,circle=circle_time)
 
     #converting to HSV
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
 
     # Normal masking algorithm
-    lower_blue = np.array([127, 98, 118])
-    upper_blue = np.array([178, 255, 255])
+    lower_blue = np.array([175, 68, 126])
+    upper_blue = np.array([185, 255, 247])
 
     mask = cv2.inRange(hsv,lower_blue, upper_blue)
     kernel_close = np.ones((21,21),np.uint8)
@@ -98,6 +111,8 @@ while 1:
     mask = cv2.GaussianBlur(mask,(15,15),0)
     circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 20)
     result = cv2.bitwise_and(frame,frame,mask = mask)
+    after_masking = time.time()
+
     
     if circles != None:
         for i in circles[0,:]:
@@ -111,14 +126,12 @@ while 1:
 
     res = result #cv2.resize(result,None,fx=0.5, fy=0.5)
     cv2.imshow('result',res)
-
-
-
-    """
-    track_ball()
+    res = cv2.resize(mask, None, fx=0.5, fy=0.5)
+    #cv2.imshow('result', res)
+    
     PWM.set_duty_cycle(x_servo,current_servo_x)
     PWM.set_duty_cycle(y_servo,current_servo_y)
-    """
+    
 
 cap.release()
 
