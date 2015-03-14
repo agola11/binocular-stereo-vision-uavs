@@ -73,7 +73,7 @@ t.start()
 """
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 while 1:
     h,s,v = 100,100,100
@@ -97,14 +97,22 @@ while 1:
 
     mask = cv2.GaussianBlur(mask,(15,15),0)
     circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 20)
-
+    result = cv2.bitwise_and(frame,frame,mask = mask)
+    
     if circles != None:
         for i in circles[0,:]:
             # draw the outer circle
-            #cv2.circle(result,(i[0],i[1]),i[2],(0,255,0),2)
+            cv2.circle(result,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
-            #cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
-            print (i[0], i[1])
+            cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
+            (x, y) = (i[0], i[1])
+            print (x, y)
+            break
+
+    res = result #cv2.resize(result,None,fx=0.5, fy=0.5)
+    cv2.imshow('result',res)
+
+
 
     """
     track_ball()
