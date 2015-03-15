@@ -1,0 +1,5 @@
+1) If you try to arm using DroneAPI without pressing the enable button, it makes the weird motor one at a time buzzing noise.
+
+2) PREDICTION: You cannot arm without having an RC connection. This might be causing the fail to arm nonsense.
+
+3) Check Mission Planner to see what pre-arm check it failed to do.
