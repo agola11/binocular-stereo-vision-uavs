@@ -69,15 +69,14 @@ print "Current dest: %s" % cmds.next
 
 # v.add_attribute_observer('mode', mode_callback)
 
+
 print "Disarming..."
 v.armed = False
 v.flush()
 
-"""
 print "Arming..."
 v.armed = True
 v.flush()
-"""
 
 print "Overriding a RC channel"
 v.channel_override = { "1" : 900, "4" : 1000 }

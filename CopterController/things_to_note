@@ -3,3 +3,19 @@
 2) PREDICTION: You cannot arm without having an RC connection. This might be causing the fail to arm nonsense.
 
 3) Check Mission Planner to see what pre-arm check it failed to do.
+
+4) {command : 400, result : 3} -> DID NOT ARM, {command : 400, result : 0} -> DID ARM ???
+
+5) You are able to arm the vehicle in STABILIZE mode, then change the mode to AUTO/LOITER.  You cannot arm while in AUTO/LOITER mode. However it seems that you can disarm in any mode.
+
+6) If you leave the joystick down while in stablize mode, the vehicle will eventually disarm.
+
+7) You somehow still have Yaw control while in auto mode????
+
+8) Diff between guided mode and autonomous mode???
+
+9) Best way to control two vehicles???
+
+10) Best mode to fly in?  While sending commands in a loop can we still override after switching in STABILIZE mode ???
+
+11) what mode to use channel override in??? 
