@@ -11,7 +11,7 @@ class CopterControl(object):
 	(djnugent on GitHub)
 	"""
 
-	def __init__(self, api, vel_update):
+	def __init__(self, api, vel_update=1):
 		"""
 		return an instance of CopterControl
 		api: an APIConnection instance created by calling local_connect in parent file
@@ -129,7 +129,7 @@ class CopterControl(object):
 		self.uav.send_mavlink(msg)
 		self.uav.flush()
 
-	def goto(lat, lon, alt=30):
+	def goto((lat, lon), alt=30):
 		"""
 		send the uav to the designated latitude, longitude, and altidude.
 		USE WITH CAUTION
@@ -142,6 +142,46 @@ class CopterControl(object):
 			return True
 
 		return False
+
+
+"""
+Testing
+"""
+
+def test():
+	api = local_connect()
+	cop_ctrl = CopterControl(api)
+
+	print "ARMED = " + cop_ctrl.is_armed()
+
+	"""
+	cop_ctrl.arm()
+	"""
+
+	print "MODE = " + cop_ctrl.get_mode_name() # should be stabilize if copter has just been turned on
+
+	cop_ctrl.set_mode("GUIDED")
+	time.sleep(2) # wait for changes to take effect
+	print cop_ctrl.get_mode_name()
+
+	"""
+	origin = (40.345763, -74.649955)
+	cop_ctrl.goto(origin, 20) # fly to 50 yd line, 20m high
+	time.sleep(5) # wait for changes to take effect
+
+	cop_ctrl.set_yaw(90) # turn the copter due east
+	time.sleep(1) # wait
+
+	cop_ctrl.set_yaw(90) 
+	time.sleep(1)
+
+	cop_ctrl.set_velocity(0.5, 0, 0)
+	time.sleep(2)
+	cop_ctrl.set_velocity(0, 0, 0)
+	"""
+
+test()
+
 
 
 
