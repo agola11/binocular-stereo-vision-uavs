@@ -89,9 +89,7 @@ while 1:
     _, frame = cap.read()
     after_cap = time.time()
     cap_time = after_cap-before_cap
-    mask_time = after_masking-after_cap
 
-    print "capture time: {frame}s, mask time: {mask}s, circle time: {circle}s".format(frame=cap_time,mask=mask_time,circle=circle_time)
 
     #converting to HSV
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
@@ -112,8 +110,10 @@ while 1:
     circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 20)
     result = cv2.bitwise_and(frame,frame,mask = mask)
     after_masking = time.time()
+    mask_time = after_masking-after_cap
 
-    
+    print "capture time: {frame}s, processing time: {mask}s".format(frame=cap_time,mask=mask_time,)
+
     if circles != None:
         for i in circles[0,:]:
             # draw the outer circle
@@ -124,9 +124,9 @@ while 1:
             print (x, y)
             break
 
-    res = result #cv2.resize(result,None,fx=0.5, fy=0.5)
-    cv2.imshow('result',res)
-    res = cv2.resize(mask, None, fx=0.5, fy=0.5)
+#    res = result #cv2.resize(result,None,fx=0.5, fy=0.5)
+#    cv2.imshow('result',res)
+#    res = cv2.resize(mask, None, fx=0.5, fy=0.5)
     #cv2.imshow('result', res)
     
     PWM.set_duty_cycle(x_servo,current_servo_x)
