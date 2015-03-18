@@ -28,7 +28,7 @@ class CopterControl(object):
 		
 		self.api = api
 		self.uav = v
-		self.vel_update = vel_update # velocity update rate
+		self.vel_update = vel_update # TODO: velocity update rate
 
 	def get_mode_name(self):
 		"""

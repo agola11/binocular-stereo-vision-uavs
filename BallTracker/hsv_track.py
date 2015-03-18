@@ -25,8 +25,8 @@ SMOOTH=1
 
 """
 PINK BALL
-H_LOW = 127, S_LOW = 98, V_LOW = 118
-H_HI = 178, S_HI = 255, V_HI = 255
+HSV_Lo = 127,98, 118
+HSV_HI = 178, 255, 255
 SMOOTH=1
 """
 
@@ -108,7 +108,7 @@ while(1):
     print ("SMOOTH=" + str(smooth))
     mask = cv2.GaussianBlur(mask,(15,15),0)
 
-    circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 20)
+    circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 22)
     result = cv2.bitwise_and(frame,frame,mask = mask)
 
     if circles != None:
