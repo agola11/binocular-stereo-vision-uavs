@@ -92,7 +92,7 @@ class BallTracker:
 			mask = cv2.GaussianBlur(mask,(self.gauss,self.gauss),0)
 
 		circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 22)
-
+		
 		if circles != None:
 			(x, y, r) = circles[0,:][0]
 
@@ -113,26 +113,31 @@ class BallTracker:
 			else:
 				res = None
 
-			return (x, y, r, res)
+			return ((x, y, r), res)
 
 		else:
-			return None
+			if show_res:
+				result = cv2.bitwise_and(frame,frame,mask = mask)
+				res = cv2.resize(result,None,fx=0.5, fy=0.5) 
+			else:
+				res = None
+				
+			return (None, res)
 
 """
 Testing
 """
-
 def test():
-	bt = BallTracker(filter_tap=0.5)
+	bt = BallTracker(filter_tap=0.3)
 	bt.set_hsv_hi((178, 255, 255))
 	bt.set_hsv_lo((127,98, 118))
 	while True:
-		state = bt.detect_ball(show_res=True)
+		(state, res) = bt.detect_ball(show_res=True)
 		if state != None:
-			(x, y, r, res) = state
-			cv2.imshow('result',res)
+			(x, y, r) = state
 			print (x, y, r)
 
+		cv2.imshow('result',res)
 		k = cv2.waitKey(5) & 0xFF
 		if k == 27:
 			break
