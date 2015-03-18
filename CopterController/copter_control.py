@@ -1,3 +1,9 @@
+'''
+copter_control.py
+Author: 
+	Ankush Gola, Joseph Bolling
+'''
+
 import time
 from pymavlink import mavutil
 from droneapi.lib import VehicleMode, Location
@@ -8,7 +14,7 @@ class CopterControl(object):
 	includes added control functionality
 
 	This class is heavily adapted from Daniel Nugent's VehicleControl class
-	(djnugent on GitHub)
+	(djnugent on GitHub, project: SmartCamera)
 	"""
 
 	def __init__(self, api, vel_update=1):
@@ -97,10 +103,16 @@ class CopterControl(object):
 			self.uav.armed = True
 			self.uav.flush()
 
-
-	# set_yaw - send condition_yaw mavlink command to vehicle so it points at specified heading (in degrees)
 	def set_yaw(self, heading):
-		# create the CONDITION_YAW command
+		"""
+		set the yaw of the uav by sending condition_yaw in mavlink
+		heading is in degrees, corresponding to a clockwise rotation
+		"""
+
+		'''
+		TODO
+		Only let commands through at 10hz
+		'''
 		msg = self.uav.message_factory.mission_item_encode(0, 0,  # target system, target component
 														0,     # sequence
 														mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, # frame
@@ -114,8 +126,15 @@ class CopterControl(object):
 		self.uav.flush()
 
 	def set_velocity(self, v_x, v_y, v_z):
-		# TODO: only let commands through at 10hz
-		# create the SET_POSITION_TARGET_LOCAL_NED command
+		"""
+		set the velocity of the vehicle by sending raw mavlink
+		velocity is in m/s
+		"""
+
+		'''
+		TODO
+		Only let commands through at 10hz
+		'''
 		msg = self.uav.message_factory.set_position_target_local_ned_encode(
 														0,       # time_boot_ms (not used)
 														0, 0,    # target system, target component
@@ -129,7 +148,7 @@ class CopterControl(object):
 		self.uav.send_mavlink(msg)
 		self.uav.flush()
 
-	def goto((lat, lon), alt=30):
+	def goto(self, (lat, lon), alt=30):
 		"""
 		send the uav to the designated latitude, longitude, and altidude.
 		USE WITH CAUTION
@@ -145,32 +164,42 @@ class CopterControl(object):
 
 
 """
-Testing
+TESTING
 """
-
 def test():
 	api = local_connect()
 	cop_ctrl = CopterControl(api)
 
-	print "ARMED = " + cop_ctrl.is_armed()
+	print "ARMED = " + str(cop_ctrl.is_armed())
 
-	"""
+	
 	cop_ctrl.arm()
-	"""
 
-	print "MODE = " + cop_ctrl.get_mode_name() # should be stabilize if copter has just been turned on
+	
+
+	print "MODE = " + str(cop_ctrl.get_mode_name()) # should be stabilize if copter has just been turned on
 
 	cop_ctrl.set_mode("GUIDED")
 	time.sleep(2) # wait for changes to take effect
 	print cop_ctrl.get_mode_name()
 
-	"""
+	
 	origin = (40.345763, -74.649955)
-	cop_ctrl.goto(origin, 20) # fly to 50 yd line, 20m high
-	time.sleep(5) # wait for changes to take effect
 
-	cop_ctrl.set_yaw(90) # turn the copter due east
-	time.sleep(1) # wait
+	thirty = (40.345967, -74.650021)
+	forty = (40.345712, -74.649880)
+
+	cop_ctrl.goto(thirty, 60) # fly to 50 yd line, 20m high
+	time.sleep(4) # wait for changes to take effect
+
+	
+	cop_ctrl.set_yaw(270) # turn the copter due east
+	time.sleep(45) # wait
+
+	print "GOING TO FORTY"
+	cop_ctrl.goto(forty, 60)
+
+	"""
 
 	cop_ctrl.set_yaw(90) 
 	time.sleep(1)
@@ -181,12 +210,3 @@ def test():
 	"""
 
 test()
-
-
-
-
-
-
-
-
-

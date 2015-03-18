@@ -84,8 +84,8 @@ while(1):
     smooth = cv2.getTrackbarPos('smooth','result')
 
     # Normal masking algorithm
-    lower_blue = np.array([127, 98, 118])
-    upper_blue = np.array([178, 255, 255])
+    lower_blue = np.array([h, s, v])
+    upper_blue = np.array([h_hi, s_hi, v_hi])
     
 
     print("H_LOW = " + str(h) + ", " + "S_LOW = " + str(s) + ", " + "V_LOW = " + str(v))
