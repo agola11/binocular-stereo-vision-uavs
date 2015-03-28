@@ -83,6 +83,17 @@ class CopterControl(object):
 		"""
 		return self.uav.attitude
 
+	def takeoff(self, alt):
+		"""
+		takeoff to the desired altitude
+		"""
+		if self.uav.mode.name == "GUIDED":
+			self.uav.commands.takeoff(alt)
+			self.uav.flush()
+			return True
+		else:
+			return False
+
 	def get_copter(self):
 		"""
 		return the Vehicle instance
