@@ -114,6 +114,12 @@ class CopterControl(object):
 			self.uav.armed = True
 			self.uav.flush()
 
+	def get_attitude(self):
+		"""
+		get the vehicle's attitude
+		"""
+		return self.uav.attitude
+
 	def set_yaw(self, heading):
 		"""
 		set the yaw of the uav by sending condition_yaw in mavlink
@@ -174,50 +180,4 @@ class CopterControl(object):
 		return False
 
 
-"""
-TESTING
-"""
-def test():
-	api = local_connect()
-	cop_ctrl = CopterControl(api)
-
-	print "ARMED = " + str(cop_ctrl.is_armed())
-
-	
-	cop_ctrl.arm()
-
-	
-
-	print "MODE = " + str(cop_ctrl.get_mode_name()) # should be stabilize if copter has just been turned on
-
-	cop_ctrl.set_mode("GUIDED")
-	time.sleep(2) # wait for changes to take effect
-	print cop_ctrl.get_mode_name()
-
-	
-	origin = (40.345763, -74.649955)
-
-	thirty = (40.345967, -74.650021)
-	forty = (40.345712, -74.649880)
-
-	cop_ctrl.goto(thirty, 60) # fly to 50 yd line, 20m high
-	time.sleep(4) # wait for changes to take effect
-
-	
-	cop_ctrl.set_yaw(270) # turn the copter due east
-	time.sleep(45) # wait
-
-	print "GOING TO FORTY"
-	cop_ctrl.goto(forty, 60)
-
-	"""
-
-	cop_ctrl.set_yaw(90) 
-	time.sleep(1)
-
-	cop_ctrl.set_velocity(0.5, 0, 0)
-	time.sleep(2)
-	cop_ctrl.set_velocity(0, 0, 0)
-	"""
-
-test()
+MESSAGES = {'armed':'ARMED', 'reached_alt':'REACHED_ALT'}

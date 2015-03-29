@@ -1,5 +1,5 @@
 '''
-copter_client.py:
+copter_control.py:
 	Client program that sends messages to an X8
 
 Author:
@@ -18,11 +18,11 @@ context = zmq.Context()
 
 # Define the socket using the "Context"
 sock = context.socket(zmq.REQ)
-sock.connect("tcp://127.0.0.1:5678")
+sock.connect("tcp://127.0.0.1:5660")
 
 # Send the "Connected" message
 new = "Connected"
-sock.send("Client1: " + new)
+sock.send("Client2: " + new)
 
 # Wait for OKAY TO ARM
 message = sock.recv()
@@ -33,7 +33,7 @@ while not cc.is_armed() and not api.exit:
 	time.sleep(1)
 
 new = "Armed"
-sock.send("Client1: " + new)
+sock.send("Client2: " + new)
 
 # Wait for OKAY TO TAKEOFF
 message = sock.recv()
