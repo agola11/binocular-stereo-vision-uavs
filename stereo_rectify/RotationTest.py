@@ -6,6 +6,11 @@ from time import sleep
 
 fname = "c:\\Users\\Joseph\Videos\\RightNoFish.avi"
 
+F = np.array([[1.21710707e+03,   0.00000000e+00,   1.36923928e+03],
+              [0.00000000e+00,   1.22282317e+03,   9.78605574e+02],
+              [0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
+dist = np.array([[ -3.19826380e-01,   1.74633694e-01,   2.05930039e-04,   2.01208997e-04, -8.69545436e-02]] )
+
 orig_window = "Original Video"
 new_window = "Adjusted Video"
 # Open Video for Reading
@@ -25,15 +30,17 @@ while(True):
     cv2.imshow(orig_window,frame)
     
     # Rotation!
-    th = np.pi/100.
+    th = np.pi/10.
     R = np.array([[1, 0, 0],
                   [0, np.cos(th), -np.sin(th)],
                   [0, np.sin(th), np.cos(th)]])
+    K = F.dot(R.dot(np.linalg.inv(F)))
     #R = np.array([[1.,0,0],
     #              [0,1.,0],
     #              [0,0,1.]])
-    print R
+    print K
     print frame.shape
-    newframe = cv2.warpPerspective(frame,R,(1280,960))
+    newframe = cv2.undistort(frame, F, dist)
+    #newframe = cv2.warpPerspective(frame,K,(1280,960))
     cv2.imshow(new_window,newframe)
     cv2.waitKey(30)
