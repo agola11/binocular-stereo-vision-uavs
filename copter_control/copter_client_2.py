@@ -9,6 +9,31 @@ Author:
 import time, zmq
 from copter_control import CopterControl
 
+# ZeroMQ Context
+context = zmq.Context()
+
+# Define the socket using the "Context"
+sock = context.socket(zmq.REQ)
+sock.connect("tcp://127.0.0.1:5660")
+
+new = "Connected"
+sock.send("Client2: " + new)
+
+message = sock.recv()
+print message
+
+time.sleep(2)
+new = "Armed"
+sock.send("Client2: " + new)
+
+message = sock.recv()
+print message
+
+time.sleep(2)
+new = "Taken Off"
+sock.send("Client2: " + new)
+
+"""
 # DroneAPI APIConnection
 api = local_connect()
 cc = CopterControl(api)
@@ -41,3 +66,4 @@ print message
 cc.set_mode("GUIDED")
 time.sleep(4) 
 cc.takeoff(15)
+"""
