@@ -14,12 +14,15 @@ def test():
 	
 	cop_ctrl.arm()
 
+	time.sleep(3)
+
 	print "MODE = " + str(cop_ctrl.get_mode_name()) # should be stabilize if copter has just been turned on
 
 	cop_ctrl.set_mode("GUIDED")
 	time.sleep(2) # wait for changes to take effect
 	print cop_ctrl.get_mode_name()
 	
+	"""
 	origin = (40.345763, -74.649955)
 	thirty = (40.345967, -74.650021)
 	forty = (40.345712, -74.649880)
@@ -33,6 +36,7 @@ def test():
 	cop_ctrl.set_velocity(1, 0, 0)
 	time.sleep(10)
 	cop_ctrl.set_velocity(0, 0, 0)
+	"""
 
 
 	"""

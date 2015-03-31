@@ -1,7 +1,7 @@
 import socket, time
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serversocket.bind(('localhost', 8089))
+serversocket.bind(('localhost', 6060))
 serversocket.listen(2) # listen for 2 connections
 
 def recv_messages((c1, a1), (c2, a2)):
@@ -29,4 +29,5 @@ c1.send(new_msg)
 c2.send(new_msg)
 
 recv_messages((c1, a1), (c2, a2))
+
 serversocket.close()
