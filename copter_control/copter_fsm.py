@@ -22,7 +22,6 @@ new = "ARM"
 sock_1.send("Server: " + new)
 sock_2.send("Server: " + new)
 
-
 # Get the "Armed" Messages
 message = sock_1.recv()
 print message
@@ -33,3 +32,9 @@ print message
 new = "OK TO TAKEOFF"
 sock_1.send("Server: " + new)
 sock_2.send("Server: " + new)
+
+# Get the Taken off message
+message = sock_1.recv()
+print message
+message = sock_2.recv()
+print message
