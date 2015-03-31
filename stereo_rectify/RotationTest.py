@@ -5,6 +5,14 @@ from scipy import interpolate
 
 # Rotation-based image rectification for a single eye
 
+# TODO For this module:
+# Correct for camera distortions before rotation, and 
+#       reapply barrel distortion afterwards
+# Correct yaw measurements for camera pitch
+# Increase sampling rate for attitude data
+# Port to a callable interface
+
+
 fname = "c:\\Users\\Joseph\Videos\\FlightWithTelem.MP4"
 first_data_frame = 1712     # First frame with valid image data
 rect_start_frame = 4250     # Index of frame to start rectifying at
