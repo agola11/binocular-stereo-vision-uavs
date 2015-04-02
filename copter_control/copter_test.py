@@ -14,8 +14,6 @@ def test():
 	
 	cop_ctrl.arm()
 
-	time.sleep(3)
-
 	print "MODE = " + str(cop_ctrl.get_mode_name()) # should be stabilize if copter has just been turned on
 
 	cop_ctrl.set_mode("GUIDED")
