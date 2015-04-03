@@ -10,15 +10,19 @@ f = open('attitude.log', 'w')
 
 start = time.time()
 dur = 120.0
+prev_yaw = -1.0
+
 while True:
 	now = time.time()
 	diff = now-start
 	if diff >= dur:
 		break
 	attitude = cc.get_attitude()
-	print(str(diff) + ": " + str(attitude))
-	print(str(diff) + ": " + str(attitude), file=f)
-	time.sleep(0.1)
+	yaw = attitude.yaw
+	if prev_yaw != yaw:
+		print(str(diff) + ": " + str(yaw))
+		print(str(diff) + ": " + str(yaw), file=f)
+		prev_yaw = yaw
 
 f.close()
 
