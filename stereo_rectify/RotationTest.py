@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from time import sleep
 from scipy import interpolate
+import log_reader as lr
 
 # Rotation-based image rectification for a single eye
 
@@ -43,57 +44,20 @@ first_data_time_ms = first_data_frame*1000/fps
 cv2.namedWindow(orig_window,cv2.WINDOW_AUTOSIZE)
 cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 
-# Read & parse attitude data
-attfile = open('attitude.log','r')
-i = 0
-time = np.array([])
-pitch = np.array([])
-yaw = np.array([])
-roll = np.array([])
-for line in attfile:
-    words = line.split("=")
-    timestring = words[0].split(":")[0]
-    pitchstring = words[1].split(",")[0]
-    yawstring = words[2].split(",")[0]
-    rollstring = words[3].split(",")[0]
-    
-    if i == 0:
-        time = np.append(time,float(timestring))
-        pitch = np.append(pitch,float(pitchstring))
-        yaw = np.append(yaw,float(yawstring))
-        roll = np.append(roll,float(rollstring))
-        i = i + 1
-    elif (float(pitchstring) != pitch[i-1] or
-            float(yawstring) != yaw[i-1] or
-           float(rollstring) != roll[i-1]):
-        time = np.append(time,float(timestring))
-        pitch = np.append(pitch,float(pitchstring))
-        yaw = np.append(yaw,float(yawstring))
-        roll = np.append(roll,float(rollstring))
-        i = i + 1
-print yaw.shape, time.shape, time[-1]
-
-# Interpolate yaw values for each frame
-yawfunc = interpolate.interp1d(time,yaw)
-time = np.linspace(time[0],time[-1],(time[-1]-time[0])*fps)
-yaw = yawfunc(time)
-print yaw, yaw.shape, time.shape, time[-1]
+reader = lr.LogReader("attitude.log",ftype = lr.ATTITUDE_LOG_T)
 
 while(True):
-    # Find index for attitude data
-    now = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
-    index = (np.abs(time*1000 + first_data_time_ms - now)).argmin()
-    print index
-    print now, first_data_time_ms,time[-1]*1000 + first_data_time_ms
-    
     # Read frame
     retval,frame = cap.read()
     if(not retval):
         break
     cv2.imshow(orig_window,frame[::2,::2,:])
     
+    # Find index for attitude data
+    now = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
+    
     # Rotation!
-    th = 2.45 - yaw[index]
+    th = 2.45 - reader.get_yaw((now-first_data_time_ms)/1000.)
     #R = np.array([[1, 0, 0],
     #             [0, np.cos(th), -np.sin(th)],
     #             [0, np.sin(th), np.cos(th)]])
