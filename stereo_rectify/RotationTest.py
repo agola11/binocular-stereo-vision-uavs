@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from time import sleep
-from scipy import interpolate
 import log_reader as lr
 
 # Rotation-based image rectification for a single eye
@@ -14,9 +13,18 @@ import log_reader as lr
 # Port to a callable interface
 
 
-fname = "c:\\Users\\Joseph\Videos\\FlightWithTelem.MP4"
-first_data_frame = 1712     # First frame with valid image data
-rect_start_frame = 4250     # Index of frame to start rectifying at
+#fname = "c:\\Users\\Joseph\Videos\\FlightWithTelem.MP4"
+#first_data_frame = 1712     # First frame with valid image data
+#rect_start_frame = 4250     # Index of frame to start rectifying at
+
+# Disarm occurs 225000 ms into video
+# This corresponds to pixhawk time 217450
+# we have data starting at pixhawk time 84612
+# This corresponds to video time 92162
+# this is frame 2765
+fname = "c:\\Users\\Joseph\Videos\\2015-04-06 18-10-04.MP4"
+rect_start_frame = 4000
+first_data_frame = 2765
 
 F = np.array([[1.21710707e+03,   0.00000000e+00,   1.36923928e+03],
               [0.00000000e+00,   1.22282317e+03,   9.78605574e+02],
@@ -44,7 +52,8 @@ first_data_time_ms = first_data_frame*1000/fps
 cv2.namedWindow(orig_window,cv2.WINDOW_AUTOSIZE)
 cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 
-reader = lr.LogReader("attitude.log",ftype = lr.ATTITUDE_LOG_T)
+#reader = lr.LogReader("attitude.log",ftype = lr.ATTITUDE_LOG_T)
+reader = lr.LogReader("2015-04-06 18-10-04.log")
 
 while(True):
     # Read frame
@@ -57,7 +66,8 @@ while(True):
     now = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
     
     # Rotation!
-    th = 2.45 - reader.get_yaw((now-first_data_time_ms)/1000.)
+    print now, first_data_time_ms
+    th = (reader.get_yaw(now-first_data_time_ms + 84612) - 244)/10.
     #R = np.array([[1, 0, 0],
     #             [0, np.cos(th), -np.sin(th)],
     #             [0, np.sin(th), np.cos(th)]])

@@ -1,5 +1,7 @@
 import numpy as np
 from scipy import interpolate
+import csv
+import matplotlib.pyplot as plt
 
 '''
 TODO:
@@ -54,7 +56,7 @@ class LogReader:
             rollstring = words[3].split(",")[0]
             
             if i == 0:
-                self.time = np.append(self.time,float(timestring))
+                self.time = np.append(self.time,float(timestring)*1000)
                 self.pitch = np.append(self.pitch,float(pitchstring))
                 self.yaw = np.append(self.yaw,float(yawstring))
                 self.roll = np.append(self.roll,float(rollstring))
@@ -62,11 +64,12 @@ class LogReader:
             elif (float(pitchstring) != self.pitch[i-1] or
                     float(yawstring) != self.yaw[i-1] or
                    float(rollstring) != self.roll[i-1]):
-                self.time = np.append(self.time,float(timestring))
+                self.time = np.append(self.time,float(timestring)*1000)
                 self.pitch = np.append(self.pitch,float(pitchstring))
                 self.yaw = np.append(self.yaw,float(yawstring))
                 self.roll = np.append(self.roll,float(rollstring))
                 i = i + 1
+        attfile.close()
         
         # Instantiate interpolation functions
         self.yawfunc = interpolate.interp1d(self.time,self.yaw)
@@ -77,9 +80,32 @@ class LogReader:
         """
         Read data from the vehicle flash log with name self.fname
         """
-        pass
-    
-
+        attfile = open(self.fname,'r')
+        reader = csv.reader(attfile)
+        
+        self.time = np.array([])
+        self.pitch = np.array([])
+        self.yaw = np.array([])
+        self.roll = np.array([])
+        
+        #Iterate over all messages in log file
+        for row in reader:    
+            if row[0] == 'ATT':
+                self.time = np.append(self.time,float(row[1]))
+                self.roll = np.append(self.roll,float(row[3]))
+                self.pitch = np.append(self.pitch,float(row[5]))
+                self.yaw = np.append(self.yaw,float(row[7]))
+        attfile.close()
+        
+        # Instantiate interpolation functions
+        self.yawfunc = interpolate.interp1d(self.time,self.yaw)
+        self.pitchfunc = interpolate.interp1d(self.time,self.pitch)
+        self.rollfunc = interpolate.interp1d(self.time,self.roll)
+        
+        plt.figure(1)
+        plt.plot(self.time,self.yaw)
+        plt.show()
+        
     def get_yaw(self,t):
         """
         Returns the yaw value at time t, interpolated from the log file
