@@ -1,7 +1,6 @@
 import numpy as np
 from scipy import interpolate
 import csv
-import matplotlib.pyplot as plt
 
 '''
 TODO:
@@ -102,9 +101,9 @@ class LogReader:
         self.pitchfunc = interpolate.interp1d(self.time,self.pitch)
         self.rollfunc = interpolate.interp1d(self.time,self.roll)
         
-        plt.figure(1)
-        plt.plot(self.time,self.yaw)
-        plt.show()
+        #plt.figure(1)
+       # plt.plot(self.time,self.yaw)
+        #plt.show()
         
     def get_yaw(self,t):
         """

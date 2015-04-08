@@ -22,14 +22,17 @@ import log_reader as lr
 # we have data starting at pixhawk time 84612
 # This corresponds to video time 92162
 # this is frame 2765
-fname = "c:\\Users\\Joseph\Videos\\2015-04-06 18-10-04.MP4"
-rect_start_frame = 4000
-first_data_frame = 2765
+#fname = "c:\\Users\\Joseph\Videos\\2015-04-07 23-51-23 3.MP4"
+#rect_start_frame = 4000
+#first_data_frame = 2765
+fname = "c:\\Users\\Joseph\Videos\\2015-04-07 23-51-23 3.MP4"
+rect_start_frame = 2240
+first_data_frame = 310
 
-F = np.array([[1.21710707e+03,   0.00000000e+00,   1.36923928e+03],
-              [0.00000000e+00,   1.22282317e+03,   9.78605574e+02],
-              [0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
-dist = np.array([[ -3.19826380e-01,   1.74633694e-01,   2.05930039e-04,   2.01208997e-04, -8.69545436e-02]] )
+F = np.array([[  2.99437818e+03,   0.00000000e+00,   9.64952231e+02],
+              [  0.00000000e+00,   2.96921724e+03,   5.44881101e+02],
+              [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
+dist = np.array([[-1.71212099,  4.26268096, -0.00944359,  0.02346181, -6.42920936]] )
 
 orig_window = "Original Video"
 new_window = "Adjusted Video"
@@ -53,7 +56,7 @@ cv2.namedWindow(orig_window,cv2.WINDOW_AUTOSIZE)
 cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 
 #reader = lr.LogReader("attitude.log",ftype = lr.ATTITUDE_LOG_T)
-reader = lr.LogReader("2015-04-06 18-10-04.log")
+reader = lr.LogReader("2015-04-07 23-51-23 3.bin.log")
 
 while(True):
     # Read frame
@@ -67,7 +70,8 @@ while(True):
     
     # Rotation!
     print now, first_data_time_ms
-    th = (reader.get_yaw(now-first_data_time_ms + 84612) - 244)/10.
+    print cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)
+    th = ((reader.get_yaw(now-first_data_time_ms) - 287.72)/120.)
     #R = np.array([[1, 0, 0],
     #             [0, np.cos(th), -np.sin(th)],
     #             [0, np.sin(th), np.cos(th)]])
