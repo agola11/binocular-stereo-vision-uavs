@@ -4,7 +4,7 @@ import csv
 
 '''
 TODO:
-implement log reading for flashdata log files
+Correct yaw measurements for camera pitch
 '''
 
 # File type constants
@@ -20,15 +20,19 @@ class LogReader:
     LogReader is equipped to handle two types of log files - attitude log files,
     which contain only data about a drone's attitude, and flashdata log files, 
     which contain high frequency data about a variety of drone parameters.
+    
+    data_start_time is the timestamp in a video of the first time the pixhawk light
+    turns on
     """
     
-    def __init__(self, fname, ftype = FLASH_LOG_T):
+    def __init__(self, fname, data_start_time, ftype = FLASH_LOG_T):
         """
         Initialize a new LogReader object to collect data from file fname 
         of type ftype
         """
         self.fname = fname
         self.ftype = ftype
+        self.time_ref = data_start_time + 343.67
         
         if ftype == ATTITUDE_LOG_T:
             self.read_attitude_log()
@@ -107,6 +111,6 @@ class LogReader:
         
     def get_yaw(self,t):
         """
-        Returns the yaw value at time t, interpolated from the log file
+        Returns the yaw value at video time t, interpolated from the log file
         """
-        return self.yawfunc(t)
+        return self.yawfunc(t - self.time_ref)
