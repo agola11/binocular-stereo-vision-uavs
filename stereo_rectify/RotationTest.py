@@ -17,22 +17,15 @@ import log_reader as lr
 #first_data_frame = 1712     # First frame with valid image data
 #rect_start_frame = 4250     # Index of frame to start rectifying at
 
-# Disarm occurs 225000 ms into video
-# This corresponds to pixhawk time 217450
-# we have data starting at pixhawk time 84612
-# This corresponds to video time 92162
-# this is frame 2765
-#fname = "c:\\Users\\Joseph\Videos\\2015-04-07 23-51-23 3.MP4"
-#rect_start_frame = 4000
-#first_data_frame = 2765
+# first_data_frame occurs 10 frames after the green light appears on the pixhawk
 fname = "c:\\Users\\Joseph\Videos\\2015-04-07 23-51-23 3.MP4"
 rect_start_frame = 2240
 first_data_frame = 310
 
-F = np.array([[  2.99437818e+03,   0.00000000e+00,   9.64952231e+02],
-              [  0.00000000e+00,   2.96921724e+03,   5.44881101e+02],
+F = np.array([[  1.50017800e+03,   0.00000000e+00,   9.45583379e+02],
+              [  0.00000000e+00,   1.50991558e+03,   5.40817307e+02],
               [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
-dist = np.array([[-1.71212099,  4.26268096, -0.00944359,  0.02346181, -6.42920936]] )
+dist = np.array([[-0.47135957,  0.32651474, -0.00792725, -0.0019949,  -0.13798072]] )
 
 orig_window = "Original Video"
 new_window = "Adjusted Video"
@@ -65,13 +58,21 @@ while(True):
         break
     cv2.imshow(orig_window,frame[::2,::2,:])
     
+    #Undistort frame
+    h,  w = frame.shape[:2]
+    newF, roi=cv2.getOptimalNewCameraMatrix(F,dist,(w,h),0)
+    undistored_frame = cv2.undistort(frame, F, dist, newCameraMatrix = newF)
+    x,y,w,h = roi
+    undistored_frame = undistored_frame[y:y+h, x:x+w]
+    
     # Find index for attitude data
     now = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
     
     # Rotation!
-    print now, first_data_time_ms
     print cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)
-    th = ((reader.get_yaw(now-first_data_time_ms) - 287.72)/120.)
+    th = np.deg2rad((reader.get_yaw(now-first_data_time_ms) - 287.72))
+    #th = ((reader.get_yaw(now-first_data_time_ms) - 287.72)/70.)
+    #th = 0
     #R = np.array([[1, 0, 0],
     #             [0, np.cos(th), -np.sin(th)],
     #             [0, np.sin(th), np.cos(th)]])
@@ -81,14 +82,14 @@ while(True):
     R = np.array([[np.cos(th), 0, np.sin(th)],
                   [0,          1, 0],
                   [-np.sin(th), 0, np.cos(th)]])
-    K = F.dot(R.dot(np.linalg.inv(F)))
+    K = newF.dot(R.dot(np.linalg.inv(newF)))
     #R = np.array([[1.,0,0],
     #              [0,1.,0],
     #              [0,0,1.]])
-    x_size = frame.shape[1] + 1000
-    y_size = frame.shape[0] + 1000
-    #newframe = cv2.undistort(frame, F, dist)
-    paddedframe = cv2.copyMakeBorder(frame,500,500,500,500,cv2.BORDER_CONSTANT,value=[0,0,0])
-    newframe = cv2.warpPerspective(paddedframe,K,(x_size,y_size))
-    cv2.imshow(new_window,newframe[::4,::4,:])
-    cv2.waitKey(30)
+    x_size = undistored_frame.shape[1] + 1000
+    y_size = undistored_frame.shape[0] + 1000
+    #paddedframe = cv2.copyMakeBorder(undistored_frame,500,500,500,500,cv2.BORDER_CONSTANT,value=[0,0,0])
+    #newframe = cv2.warpPerspective(paddedframe,K,(x_size,y_size))
+    newframe = cv2.warpPerspective(undistored_frame,K,(frame.shape[1],frame.shape[0]))
+    cv2.imshow(new_window,newframe[::2,::2,:])
+    cv2.waitKey(20)
