@@ -15,7 +15,7 @@ import time
 
 current_servo_x = 7.5
 current_servo_y = 7.5
-cp = .01
+cp = .001
 x_servo = "P9_14"
 y_servo = "P9_21"
 valid = 0
@@ -39,9 +39,10 @@ def track_ball(x, y):
         
     #Calculate desired ball position based on distance
     #size_int = int(round(size))
-    (target_x,target_y) = 480/2, 640/2 
+    (target_x,target_y) = 120/2, 160/2 
     x_err = target_x - x
     y_err = target_y - y
+    y_err = -y_err
 
     #control shit
     global current_servo_x
@@ -77,6 +78,8 @@ t.start()
 """
 
 cap = cv2.VideoCapture(-1)
+cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,160)
+cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,120)
 before_cap = time.time()
 after_cap = time.time()
 after_masking = time.time()
@@ -117,13 +120,14 @@ while 1:
     if circles != None:
         for i in circles[0,:]:
             # draw the outer circle
-            cv2.circle(result,(i[0],i[1]),i[2],(0,255,0),2)
+            #cv2.circle(result,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
-            cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
-            (x, y) = (i[0], i[1])
+            #cv2.circle(result,(i[0],i[1]),2,(0,0,255),3)
+            (x,y) = (i[0], i[1])
+            track_ball(x,y)
             print (x, y)
             break
-
+    
 #    res = result #cv2.resize(result,None,fx=0.5, fy=0.5)
 #    cv2.imshow('result',res)
 #    res = cv2.resize(mask, None, fx=0.5, fy=0.5)
