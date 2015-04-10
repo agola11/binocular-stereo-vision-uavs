@@ -21,8 +21,18 @@ def diag_line((lat0, lon0, alt0), (lat, lon, alt), k=10):
 	return zip(lats, lons, alts)
 
 
-start = (40.345767, -74.649985, 15)
-end = (40.346005, -74.650118, 30)
+start = (40.345845, -74.650027, 15) # football field
+end = (40.345990, -74.650127, 30) # football field
+
+'''
+start = (40.345344, -74.647786) # practice field 50
+end = (40.345112, -74.647657) # practice field 25
+'''
+
+'''
+start = (40.344641, -74.649337) # track mid
+end = (40.344448, -74.649908) # track end
+'''
 
 path = diag_line(start, end)
 

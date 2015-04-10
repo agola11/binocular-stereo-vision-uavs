@@ -27,9 +27,8 @@ msg = clientsocket.recv(1024)
 print msg
 
 # Takeoff
-"""
 cc.takeoff(15)
-"""
+
 time.sleep(5)
 
 print "MODE: " #+ cc.get_mode_name()
