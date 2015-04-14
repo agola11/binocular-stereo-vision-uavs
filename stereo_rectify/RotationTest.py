@@ -6,12 +6,6 @@ import mono_rectify as mr
 
 # Rotation-based image rectification for a single eye
 
-# TODO For this module:
-# Correct for camera distortions before rotation, and 
-#       reapply barrel distortion afterwards
-# Correct yaw measurements for camera pitch
-# Port to a callable interface
-
 
 #fname = "c:\\Users\\Joseph\Videos\\FlightWithTelem.MP4"
 #first_data_frame = 1712     # First frame with valid image data

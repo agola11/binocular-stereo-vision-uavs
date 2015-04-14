@@ -113,4 +113,5 @@ class LogReader:
         """
         Returns the yaw value at video time t, interpolated from the log file
         """
+        print t, t-self.time_ref
         return self.yawfunc(t - self.time_ref)
