@@ -31,7 +31,6 @@ class MonoRectify:
         self.h = int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
         
         # Get new camera matrix for post-distortion removal transformations
-        print self.w, self.h
         self.newF, self.roi=cv2.getOptimalNewCameraMatrix(self.F, self.dist,
                                                          (self.w,self.h),0)
     
@@ -56,6 +55,7 @@ class MonoRectify:
         # Rotate Frame
         now = self.cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
         th = np.deg2rad((self.log.get_yaw(now) - target_th))
+        th = 0
         rotated_frame = self.rotate_frame(undistorted_frame, th)
         return rotated_frame, frame
         
@@ -67,7 +67,7 @@ class MonoRectify:
         undistorted_frame = cv2.undistort(frame, self.F, self.dist, 
                                           newCameraMatrix = self.newF)
         x,y,w,h = self.roi
-        undistorted_frame = undistorted_frame[y:y+h, x:x+w]
+        undistorted_frame = undistorted_frame[y:y+h+1, x:x+w+1]
         
         return undistorted_frame
         

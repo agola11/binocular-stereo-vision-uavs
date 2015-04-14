@@ -1,6 +1,6 @@
 import cv2
 
-fname = "c:\\Users\\Joseph\Videos\\2015-04-07 23-51-23 3.MP4"
+fname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Left.MP4"
 
 # Open video for reading
 cap = cv2.VideoCapture(fname)
@@ -10,6 +10,7 @@ if(not cap.isOpened()):
     quit()
 
 window_name = "Video"
+cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 13100)
 print cap.get(cv2.cv.CV_CAP_PROP_FPS), cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
 
 cv2.namedWindow(window_name,cv2.WINDOW_AUTOSIZE)
