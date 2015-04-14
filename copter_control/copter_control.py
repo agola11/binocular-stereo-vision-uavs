@@ -136,7 +136,7 @@ class CopterControl(object):
 														mavutil.mavlink.MAV_CMD_CONDITION_YAW,         # command
 														2, # current - set to 2 to make it a guided command
 														0, # auto continue
-														heading, 0, 0, 0, 0, 0, 0) # param 1 ~ 7
+														heading, 10, -1, 0, 0, 0, 0) # param 1 ~ 7
 
 		# send command to vehicle
 		self.uav.send_mavlink(msg)

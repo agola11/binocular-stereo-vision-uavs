@@ -11,18 +11,30 @@ import time
 import numpy as np
 from copter_control import CopterControl
 
-def diag_line((lat0, lon0, alt0), (lat, lon, alt), k=10):
+def at_loc(cc, (cx, cy), (x, y), eps=.00002):
+	"""
+	check if current lat, lon (x, y) is within eps of target lat, lon (cx, cy)
+	"""
+	return (x - cx)**2 + (y - cy)**2 <= eps**2
+
+
+
+def diag_line((lat0, lon0, alt0), (lat, lon, alt), k=5):
 	"""
 	return a path for the drone to follow
 	"""
 	lats = np.linspace(lat0, lat, k)
 	lons = np.linspace(lon0, lon, k)
 	alts = np.linspace(alt0, alt, k)
-	return zip(lats, lons, alts)
+	p = zip(lats, lons, alts)
+	return p
 
 
-start = (40.345845, -74.650027, 15) # football field
-end = (40.345990, -74.650127, 30) # football field
+#start = (40.345845, -74.650027, 15) # football field
+#end = (40.345990, -74.650127, 30) # football field
+
+start = (40.345652, -74.650070, 15) # 40
+end = (40.345797, -74.650172, 15) # 20
 
 '''
 start = (40.345344, -74.647786) # practice field 50
@@ -47,15 +59,21 @@ cc.arm()
 cc.set_mode("GUIDED")
 
 # wait for changes to take effect
-time.sleep(2)
+time.sleep(3)
 
 # takeoff!
 print "Taking off ..."
 cc.takeoff(15)
 time.sleep(10)
 
+# going to start location
+print "going to start loc"
+cc.goto((start[0], start[1]), start[2])
+time.sleep(10)
+
 # start following the path
 print "Following path ..."
-for p in path:
-	cc.goto((p[0], p[1]), p[3])
-	time.sleep(1.5)
+for p in path[1:]:
+	print "GOING TO ", p
+	cc.goto((p[0], p[1]), p[2])
+	time.sleep(3)

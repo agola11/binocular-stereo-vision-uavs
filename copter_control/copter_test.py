@@ -17,8 +17,11 @@ def test():
 	print "MODE = " + str(cop_ctrl.get_mode_name()) # should be stabilize if copter has just been turned on
 
 	cop_ctrl.set_mode("GUIDED")
-	time.sleep(2) # wait for changes to take effect
-	print cop_ctrl.get_mode_name()
+	time.sleep(3) # wait for changes to take effect
+	
+	print "Taking off"
+	cop_ctrl.takeoff(15)
+
 	
 	"""
 	origin = (40.345763, -74.649955)
