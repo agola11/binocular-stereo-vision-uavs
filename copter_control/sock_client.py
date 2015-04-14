@@ -1,39 +1,63 @@
+'''
+sock_client.py:
+	Simulated Quadcopter Client
+
+Author:
+	Ankush Gola
+'''
+
 import time, socket
-from copter_control import CopterControl
 
-# DroneAPI APIConnection
-api = local_connect()
-cc = CopterControl(api)
+PORT = 6060
+BUF_SIZE = 4096
+TIMEOUT = 10
 
-clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientsocket.connect(('localhost', 6060))
-clientsocket.send('connected')
+cs = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+cs.connect(('localhost', PORT))
+cs.send('Connected')
 
-msg = clientsocket.recv(1024)
+def error(cs, msg):
+	cs.send('ERR: ' + msg)
+	cs.close()
+
+#-----------------------------------------------------------
+
+# Expecting "ARM" message
+msg = cs.recv(BUF_SIZE)
 print msg
 
-# Arm
-print 'ATTEMPTING TO ARM'
+if msg == 'ARM':
+	# Arm
+	print 'ATTEMPTING TO ARM'
+	time.sleep(2) # replace with actual arming logic
 
-cc.arm()
-cc.set_mode('GUIDED')
+	# insert spin lock here
+	cs.send('ARMED')
 
-while not cc.is_armed() and cc.get_mode_name() != 'GUIDED':
-	time.sleep(0.5)
+	# insert timeout 
+	# error(cs, 'TIMEOUT')
+else:
+	error(cs, 'WRONG MESSAGE')
 
-clientsocket.send('ARMED')
+#-----------------------------------------------------------
 
-msg = clientsocket.recv(1024)
+# Expecting "TAKE OFF"
+msg = cs.recv(BUF_SIZE)
 print msg
 
-# Takeoff
-"""
-cc.takeoff(15)
-"""
-time.sleep(5)
+if msg == 'TAKEOFF':
+	# Arm
+	print 'ATTEMPTING TO TAKE OFF'
+	time.sleep(2) # replace with actual arming logic
 
-print "MODE: " #+ cc.get_mode_name()
+	# insert spin lock here
+	cs.send('TAKEN OFF')
 
-clientsocket.send('TAKEN OFF')
+	# insert timeout 
+	# error(cs, 'TIMEOUT')
+else:
+	error(cs, 'WRONG MESSAGE')
 
-clientsocket.close()
+#-----------------------------------------------------------
+
+cs.close()
