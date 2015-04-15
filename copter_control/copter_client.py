@@ -30,11 +30,7 @@ msg = cs.recv(BUF_SIZE)
 print msg
 
 # Takeoff
-cc.takeoff(15)
-
-time.sleep(5)
-
-print "MODE: " #+ cc.get_mode_name()
+cc.takeoff(60)
 
 cs.send('TAKEN OFF')
 

@@ -17,9 +17,26 @@ def test():
 	print "MODE = " + str(cop_ctrl.get_mode_name()) # should be stabilize if copter has just been turned on
 
 	cop_ctrl.set_mode("GUIDED")
-	time.sleep(2) # wait for changes to take effect
-	print cop_ctrl.get_mode_name()
+	time.sleep(3) # wait for changes to take effect
 	
+	print "Taking off"
+	cop_ctrl.takeoff(15)
+	time.sleep(10)
+
+	origin = (40.345763, -74.649955)
+	print "GOTO"
+	cop_ctrl.goto(origin, 15)
+	time.sleep(4)
+
+	print "Setting Yaw"
+	cop_ctrl.set_yaw(250)
+	time.sleep(10)
+
+	print 'GOTO 2'
+	start = (40.345652, -74.650070)
+	cop_ctrl.goto(start, 15)
+	time.sleep(3)
+
 	"""
 	origin = (40.345763, -74.649955)
 	thirty = (40.345967, -74.650021)
@@ -39,7 +56,7 @@ def test():
 
 	"""
 	print "GOING TO ORIGIN"
-	cop_ctrl.goto(origin, 30) # fly to 50 yd line, 20m high
+	cop_ctrl.goto(origin, 15) # fly to 50 yd line, 20m high
 	time.sleep(4) # wait for changes to take effect
 
 	
