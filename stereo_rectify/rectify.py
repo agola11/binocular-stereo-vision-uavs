@@ -53,6 +53,7 @@ output_fname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Stereo_raw.avi"
 width = int(right_mono.cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 height = int(right_mono.cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 fps = int(right_mono.cap.get(cv2.cv.CV_CAP_PROP_FPS))
+
 print height, width
 #ffmpeg_command = ["C:\\ffmpeg\\bin\\ffmpeg.exe"
 #                '-y'
@@ -68,19 +69,19 @@ print height, width
 #pipe = sp.Popen(ffmpeg_command, shell=True, stdin = sp.PIPE, stderr = sp.PIPE)
 
 #writer = cv2.VideoWriter(output_fname, cv2.cv.FOURCC(*'XVID'),fps,(height,width))
-writer = cv2.VideoWriter(output_fname, -1,fps,(width,height))
-if not writer.isOpened():
-    print "error opening output file"
-    quit()
+#writer = cv2.VideoWriter(output_fname, -1,fps,(width/2,height/2))
+#if not writer.isOpened():
+#    print "error opening output file"
+#    quit()
     
 
 for i in range(400):
     stitched_frame = rectifier.get_frame(245)
     print stitched_frame.shape
-    writer.write(stitched_frame)
+ #   writer.write(stitched_frame[::2,::2,:])
     #pipe.communicate( stitched_frame.tostring() )
 
     #cv2.imshow(orig_window,orig_frame[::2,::2,:])
     cv2.imshow(new_window,stitched_frame[::2,::2,:])
     cv2.waitKey(20)
-writer.release()
+#writer.release()

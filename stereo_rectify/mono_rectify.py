@@ -54,8 +54,7 @@ class MonoRectify:
         
         # Rotate Frame
         now = self.cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
-        th = np.deg2rad((self.log.get_yaw(now) - target_th))
-        th = 0
+        th = np.deg2rad((self.log.get_ekf_yaw(now) - target_th))
         rotated_frame = self.rotate_frame(undistorted_frame, th)
         return rotated_frame, frame
         
