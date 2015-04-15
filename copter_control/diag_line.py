@@ -11,7 +11,7 @@ import time
 import numpy as np
 from copter_control import CopterControl
 
-def at_loc(cc, (cx, cy), (x, y), eps=.00002):
+def at_loc((x, y), (cx, cy), eps=.00003):
 	"""
 	check if current lat, lon (x, y) is within eps of target lat, lon (cx, cy)
 	"""
@@ -69,6 +69,7 @@ time.sleep(10)
 # going to start location
 print "going to start loc"
 cc.goto((start[0], start[1]), start[2])
+cc.set_yaw(250)
 time.sleep(10)
 
 # start following the path
@@ -76,4 +77,5 @@ print "Following path ..."
 for p in path[1:]:
 	print "GOING TO ", p
 	cc.goto((p[0], p[1]), p[2])
-	time.sleep(3)
+	while not at_loc((cc.get_current_location().lat, cc.get_current_location().lon), (p[0], p[1])):
+		time.sleep(0.01)
