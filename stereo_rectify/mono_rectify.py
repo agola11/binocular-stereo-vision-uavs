@@ -40,23 +40,21 @@ class MonoRectify:
         """
         self.cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame)
         
-    def get_frame(self, target_th):
+    def get_frame(self, target_yaw, pitch, target_loc):
         """
         returns the next frame in the video, rectified to face direction 
-        target_th
+        target_yaw with pitch adjustment pitch
         """
         # Read the next frame
         retval,frame = self.cap.read()
-        if(not retval):
-            return None
+        assert(retval)            
     
         undistorted_frame = self.undistort_frame(frame)
         
         # Rotate Frame
         now = self.cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
-        th = np.deg2rad((self.log.get_yaw(now) - target_th))
-        th = 0
-        rotated_frame = self.rotate_frame(undistorted_frame, th)
+        th = self.log.get_ekf_yaw(now) - target_yaw
+        rotated_frame = self.pitch_frame(self.rotate_frame(undistorted_frame, th), pitch)
         return rotated_frame, frame
         
     def undistort_frame(self, frame):
@@ -81,10 +79,26 @@ class MonoRectify:
         #R = np.array([[np.cos(th), -np.sin(th), 0],
         #              [np.sin(th), np.cos(th),  0],
         #              [0, 0, 1]])
-        R = np.array([[np.cos(th),  0, np.sin(th)],
+        th_rad = np.deg2rad(th)
+        R = np.array([[np.cos(th_rad),  0, np.sin(th_rad)],
                       [0,           1, 0],
-                      [-np.sin(th), 0, np.cos(th)]])
+                      [-np.sin(th_rad), 0, np.cos(th_rad)]])
         K = self.newF.dot(R.dot(np.linalg.inv(self.newF)))
         
         newframe = cv2.warpPerspective(frame,K,(frame.shape[1],frame.shape[0]))
         return newframe
+        
+    def pitch_frame(self, frame, th):
+        """
+        Pitch frame up by th radians
+        """        
+        th_rad = np.deg2rad(th)
+        R = np.array([[1, 0,              0],
+                      [0, np.cos(th_rad), -np.sin(th_rad)],
+                      [0, np.sin(th_rad), np.cos(th_rad)]])
+        
+        K = self.newF.dot(R.dot(np.linalg.inv(self.newF)))
+        newframe = cv2.warpPerspective(frame,K,(frame.shape[1],frame.shape[0]))
+        return newframe
+        
+    def translate_frame(self,
