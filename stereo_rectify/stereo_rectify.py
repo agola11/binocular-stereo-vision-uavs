@@ -13,7 +13,7 @@ OCULUS_HEIGHT = 1080
 
 class StereoRectify:
     
-    def __init__(self, left, right, yaw_offset = 0, pitch_offset = 0):
+    def __init__(self, left, right, yaw_offset = 0):
         """
         Contructs a new StereoRectifiy object using MonoRectifies 
         left and right. th_offset provides a "toe out" amount by which to
@@ -23,19 +23,17 @@ class StereoRectify:
         self.left = left
         self.right = right
         self.yaw_offset = yaw_offset
-        self.pitch_offset = pitch_offset
         
-    def get_frame(self, target_yaw):
+    def get_frame(self, target_yaw, target_pitch):
         """
         Returns a side-by-side stitching of the next left and right frames
         """
-        left_frame, old_frame = self.left.get_frame(target_yaw - self.yaw_offset/2, 
-                                                    self.pitch_offset/2)
-        right_frame, old_frame = self.right.get_frame(target_yaw + self.yaw_offset/2,
-                                                    -self.pitch_offset/2)
+        left_frame, old_frame = self.left.get_frame(target_yaw - self.yaw_offset/2, target_pitch,None)
+        right_frame, old_frame = self.right.get_frame(target_yaw + self.yaw_offset/2, target_pitch,None)
         
         #sanity check
         (h,w) = left_frame.shape[:2]
+        print h,w
         assert((h,w) == right_frame.shape[:2])
         assert(h == OCULUS_HEIGHT)
         assert(w > OCULUS_WIDTH)
