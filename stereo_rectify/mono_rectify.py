@@ -45,7 +45,7 @@ class MonoRectify:
     def get_frame(self, target_yaw, target_pitch, target_loc):
         """
         returns the next frame in the video, rectified to face direction 
-        target_yaw with pitch adjustment pitch
+        target_yaw and pitched target_pitch degrees down
         """
         # Read the next frame
         retval,frame = self.cap.read()
@@ -53,17 +53,22 @@ class MonoRectify:
     
         undistorted_frame = self.undistort_frame(frame)
         
-        # Rotate Frame
         now = self.cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
         
-        #Calculate Rotation Matrices
-        th_yaw = self.log.get_ekf_yaw(now) - target_yaw
-        R_y = self.yaw_matrix(th_yaw)
-        th_pitch = self.pitch - target_pitch
-        R_p = self.pitch_matrix(th_pitch)
-        newFinv = np.linalg.inv(self.newF)
+        #Calculate R1: World frame to camera frame
+        R_y1 = self.yaw_matrix(ned2image_yaw(self.log.get_ekf_yaw(now)))
+        R_p1 = self.pitch_matrix(self.pitch) #TODO: Invert Pitch?
+        R1 = R_p1.dot(R_y1)
         
-        K = self.newF.dot(R_y.dot(R_p.dot(newFinv)))
+        #Calculate R2: World frame to desired frame
+        R_y2 = self.yaw_matrix(ned2image_yaw(target_yaw))
+        R_p2 = self.pitch_matrix(target_pitch)
+        R2 = R_p2.dot(R_y2)
+        
+        #Calculate Rotation Matrices
+        newFinv = np.linalg.inv(self.newF)
+        R1inv = np.linalg.inv(R1)        
+        K = self.newF.dot(R2.dot(R1inv.dot(newFinv)))
         
         rotated_frame = cv2.warpPerspective(frame,K,(self.w,self.h))
         return rotated_frame, frame
@@ -105,4 +110,10 @@ class MonoRectify:
                       [0, np.cos(th_rad), -np.sin(th_rad)],
                       [0, np.sin(th_rad), np.cos(th_rad)]])
         return R
-        
+
+def ned2image_yaw(th):
+    """
+    Converts a yaw angle in the North-East-Down frame to the 
+    yaw frame used by camera rotation matrices
+    """
+    return 360 - th
