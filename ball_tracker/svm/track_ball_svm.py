@@ -24,7 +24,7 @@ def flatten(img):
 vw = cv2.VideoWriter
 
 frame_count = 1
-vid = 'sunny_test.mov'
+vid = 'indoor_test.mov'
 out = 'out.avi'
 log = 'ball_track.log'
 
@@ -44,7 +44,7 @@ while True:
 	if (frame == None):
 		break
 
-	cv2.imwrite('train/frame_' + str(frame_count) + '.jpg', frame)
+	#cv2.imwrite('train/frame_' + str(frame_count) + '.jpg', frame)
 
 	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 	rgb_f = rgb.astype(float)/255 # scale for classification
@@ -69,7 +69,7 @@ while True:
 	frame_count+=1
 
 	vw.write(frame)
-	cv2.imshow('frame',Z)
+	cv2.imshow('frame',frame)
 	k = cv2.waitKey(5) & 0xFF
 	if k == 27:
 		break
