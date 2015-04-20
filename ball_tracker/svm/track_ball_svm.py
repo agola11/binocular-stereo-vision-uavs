@@ -24,13 +24,8 @@ def flatten(img):
 vw = cv2.VideoWriter
 
 frame_count = 1
-<<<<<<< HEAD
 vid = 'sunny_test.mov'
 out = 'out.avi'
-=======
-vid = 'cloudy_test.mov'
-out = 'out_cloudy.avi'
->>>>>>> a82174cb19f7edee4d5f11406d7ca860ba907d87
 log = 'ball_track.log'
 
 clf2 = joblib.load('model/clf.pkl')  # read in the model
