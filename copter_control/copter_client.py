@@ -103,7 +103,7 @@ def takeoff():
 		cs.send('Taken Off')
 		state += 1
 
-def at_loc((x, y), (cx, cy), eps=.00003):
+def at_loc((x, y), (cx, cy), eps=0.00003):
 	"""
 	check if current lat, lon (x, y) is within eps of target lat, lon (cx, cy)
 	"""
@@ -169,7 +169,7 @@ def formation():
 			cc.goto((p[0], p[1]), p[2])
 			
 			while not at_loc((cc.get_current_location().lat, cc.get_current_location().lon), (p[0], p[1])):
-				time.sleep(0.01)
+				time.sleep(0.001)
 			
 			print 'Arrived'
 			cs.send('Arrived')
@@ -193,7 +193,7 @@ def exit_failure():
 
 PORT = 6060
 BUF_SIZE = 4096
-TIMEOUT = 20 # timeout in seconds
+TIMEOUT = 60 # timeout in seconds
 
 state = 0
 cs = None
