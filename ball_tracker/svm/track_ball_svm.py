@@ -24,7 +24,7 @@ def flatten(img):
 vw = cv2.VideoWriter
 
 frame_count = 1
-vid = 'indoor_test.mov'
+vid = 'cloudy_test.mov'
 out = 'out.avi'
 log = 'ball_track.log'
 
@@ -67,6 +67,8 @@ while True:
 		cv2.circle(frame,(x, y), 3 ,(0,0,255),3)
 
 	frame_count+=1
+
+	cv2.imwrite('results/svm_cloudy_frame_' + str(frame_count) + '.jpg', frame)
 
 	vw.write(frame)
 	cv2.imshow('frame',frame)
