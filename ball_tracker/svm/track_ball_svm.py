@@ -44,6 +44,8 @@ while True:
 	if (frame == None):
 		break
 
+	cv2.imwrite('train/frame_' + str(frame_count) + '.jpg', frame)
+
 	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 	rgb_f = rgb.astype(float)/255 # scale for classification
 	
@@ -67,7 +69,7 @@ while True:
 	frame_count+=1
 
 	vw.write(frame)
-	cv2.imshow('frame',frame)
+	cv2.imshow('frame',Z)
 	k = cv2.waitKey(5) & 0xFF
 	if k == 27:
 		break
