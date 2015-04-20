@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import interpolate
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import csv
 
 # File type constants
@@ -136,8 +136,8 @@ class LogReader:
         self.ekf_pe_func = interpolate.interp1d(ekf_time, ekf_pe)
         self.ekf_pd_func = interpolate.interp1d(ekf_time, ekf_pd)
         
-        plt.figure(1)
-        plt.plot(ekf_time,ekf_pd)
+        #plt.figure(1)
+        #plt.plot(ekf_time,ekf_pd)
         
     def get_att_yaw(self,t):
         """
