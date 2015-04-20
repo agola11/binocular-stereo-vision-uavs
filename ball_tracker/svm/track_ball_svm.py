@@ -25,7 +25,7 @@ vw = cv2.VideoWriter
 
 frame_count = 1
 vid = 'cloudy_test.mov'
-out = 'out.avi'
+out = 'out_cloudy.avi'
 log = 'ball_track.log'
 
 clf2 = joblib.load('model/clf.pkl')  # read in the model
@@ -70,5 +70,5 @@ while True:
 		break
 
 cap.release()
-vw.close()
+vw.release()
 cv2.destroyAllWindows()
