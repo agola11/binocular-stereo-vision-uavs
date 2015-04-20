@@ -2,3 +2,5 @@
 *.tlog
 *.tlog.raw
 *.pyc
+*.pkl
+*.npy
