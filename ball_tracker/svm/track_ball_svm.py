@@ -25,7 +25,7 @@ vw = cv2.VideoWriter
 
 frame_count = 1
 vid = 'cloudy_test.mov'
-out = 'out_cloudy.avi'
+out = 'out.avi'
 log = 'ball_track.log'
 
 clf2 = joblib.load('model/clf.pkl')  # read in the model
@@ -44,6 +44,8 @@ while True:
 	if (frame == None):
 		break
 
+	#cv2.imwrite('train/frame_' + str(frame_count) + '.jpg', frame)
+
 	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 	rgb_f = rgb.astype(float)/255 # scale for classification
 	
@@ -60,8 +62,13 @@ while True:
 	if circles != None:
 		(x, y, r) = circles[0,:][0]
 		print (x, y, r)
+		print (str(frame_count) + ' ' + str((x, y, r)), file=f)
 		cv2.circle(frame, (x, y), r, (0,255,0), 2)
 		cv2.circle(frame,(x, y), 3 ,(0,0,255),3)
+
+	frame_count+=1
+
+	cv2.imwrite('results/svm_cloudy_frame_' + str(frame_count) + '.jpg', frame)
 
 	vw.write(frame)
 	cv2.imshow('frame',frame)
