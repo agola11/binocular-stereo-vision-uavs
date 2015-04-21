@@ -5,7 +5,7 @@ import log_reader as lr
 import mono_rectify as mr
 import stereo_rectify as sr
 import subprocess as sp
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 # Rotation-based image rectification for a single eye
 
@@ -43,15 +43,15 @@ cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 
 # Start log reader and mono rectifiers
 left_reader = lr.LogReader(l_logname,l_first_data_time_ms)
-left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, 1)
+left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, -1)
 left_mono.seek_frame(l_rect_start_frame)
 
 right_reader = lr.LogReader(r_logname,r_first_data_time_ms)
-right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, -1
+right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, 1)
 right_mono.seek_frame(r_rect_start_frame)
 
-plt.figure(1)
-plt.show()
+#plt.figure(1)
+#plt.show()
 rectifier = sr.StereoRectify(left_mono,right_mono,yaw_offset = 0)
 
 # Start VideoWriter
@@ -67,7 +67,7 @@ if(write_to_file):
     
 
 for i in range(400):
-    stitched_frame = rectifier.get_frame(245,0)
+    stitched_frame = rectifier.get_frame(245,5)
     print stitched_frame.shape
 
     if(write_to_file):

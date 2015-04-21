@@ -17,8 +17,7 @@ class StereoRectify:
         """
         Contructs a new StereoRectifiy object using MonoRectifies 
         left and right. th_offset provides a "toe out" amount by which to
-        adjust the right image feed. pitch_offset provides a constant 
-        pitch difference to be split across the two frames
+        adjust the right image feed. 
         """
         self.left = left
         self.right = right
