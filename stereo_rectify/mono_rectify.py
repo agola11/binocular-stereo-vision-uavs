@@ -67,7 +67,7 @@ class MonoRectify:
         
         #Calculate Rotation Matrices
         newFinv = np.linalg.inv(self.newF)
-        R1inv = np.linalg.inv(R1)        
+        R1inv = np.linalg.inv(R1)
         K = self.newF.dot(R2.dot(R1inv.dot(newFinv)))
         
         rotated_frame = cv2.warpPerspective(frame,K,(self.w,self.h))
