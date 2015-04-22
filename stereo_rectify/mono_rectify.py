@@ -42,6 +42,12 @@ class MonoRectify:
         """
         self.cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame)
         
+    def seek_time(self, time):
+        """
+        sets the time from which to select the next frame to be rectified in ms
+        """
+        self.cap.set(cv2.cv.CV_CAP_PROP_POS_MSEC, time)
+        
     def get_frame(self, target_yaw, target_pitch, target_loc):
         """
         returns the next frame in the video, rectified to face direction 
@@ -54,9 +60,12 @@ class MonoRectify:
         undistorted_frame = self.undistort_frame(frame)
         
         now = self.cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
+        current_yaw = self.log.get_ekf_yaw(now)
+        current_loc = self.log.get_ekf_loc(now)
+        
         
         #Calculate R1: World frame to camera frame
-        R_y1 = self.yaw_matrix(ned2image_yaw(self.log.get_ekf_yaw(now)))
+        R_y1 = self.yaw_matrix(ned2image_yaw(current_yaw))
         R_p1 = self.pitch_matrix(self.pitch) #TODO: Invert Pitch?
         R1 = R_p1.dot(R_y1)
         
@@ -65,12 +74,15 @@ class MonoRectify:
         R_p2 = self.pitch_matrix(target_pitch)
         R2 = R_p2.dot(R_y2)
         
-        #Calculate Rotation Matrices
+        #Calculate Rotation Matrix P
         newFinv = np.linalg.inv(self.newF)
         R1inv = np.linalg.inv(R1)
-        K = self.newF.dot(R2.dot(R1inv.dot(newFinv)))
+        P = self.newF.dot(R2.dot(R1inv.dot(newFinv)))
         
-        rotated_frame = cv2.warpPerspective(frame,K,(self.w,self.h))
+        #Calculate full homography
+        
+        
+        rotated_frame = cv2.warpPerspective(undistorted_frame,P,(self.w,self.h))
         return rotated_frame, frame
         
     def undistort_frame(self, frame):

@@ -152,9 +152,9 @@ class LogReader:
         """
         return self.ekf_yaw_func(t-self.time_ref)
         
-    def get_ekf_loc(self, t)
+    def get_ekf_loc(self, t):
         """
         """
-        loc = (ekf_pn_func(t), ekf_pe_func(t), ekf_pd_func(t))
+        loc = (self.ekf_pn_func(t), self.ekf_pe_func(t), self.ekf_pd_func(t))
         return loc
         
