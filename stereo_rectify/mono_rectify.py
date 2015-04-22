@@ -62,24 +62,24 @@ class MonoRectify:
         now = self.cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
         current_yaw = self.log.get_ekf_yaw(now)
         current_loc = self.log.get_ekf_loc(now)
+        target_loc = self.log.get_desired_loc(now)
         
-        
-        #Calculate R1: World frame to camera frame
+        # Calculate R1: World frame to camera frame
         R_y1 = self.yaw_matrix(ned2image_yaw(current_yaw))
         R_p1 = self.pitch_matrix(self.pitch) #TODO: Invert Pitch?
         R1 = R_p1.dot(R_y1)
         
-        #Calculate R2: World frame to desired frame
+        # Calculate R2: World frame to desired frame
         R_y2 = self.yaw_matrix(ned2image_yaw(target_yaw))
         R_p2 = self.pitch_matrix(target_pitch)
         R2 = R_p2.dot(R_y2)
         
-        #Calculate Rotation Matrix P
+        # Calculate Rotation Matrix P
         newFinv = np.linalg.inv(self.newF)
         R1inv = np.linalg.inv(R1)
         P = self.newF.dot(R2.dot(R1inv.dot(newFinv)))
-        
-        #Calculate full homography
+       
+        # Calculate full homography
         
         
         rotated_frame = cv2.warpPerspective(undistorted_frame,P,(self.w,self.h))
@@ -129,3 +129,11 @@ def ned2image_yaw(th):
     yaw frame used by camera rotation matrices
     """
     return 360 - th
+    
+def ned2wun_loc(ned_loc)
+    """
+    Converts a location in the North-East-Down coordinate frame to the 
+    West-Up-North frame used by the camera rotations.
+    """
+    wun_loc = np.array([[-ned_loc[1], -ned_loc[2], ned_loc[0]])
+    return wun_loc

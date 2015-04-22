@@ -1,7 +1,8 @@
 import numpy as np
 from scipy import interpolate
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import csv
+import mpl_toolkits.mplot3d as m3d
 
 # File type constants
 ATTITUDE_LOG_T = 1
@@ -154,7 +155,62 @@ class LogReader:
         
     def get_ekf_loc(self, t):
         """
+        Returns the NED location in meters relative to the drone's position when 
+        armed
         """
-        loc = (self.ekf_pn_func(t), self.ekf_pe_func(t), self.ekf_pd_func(t))
+        t_adj = t - self.time_ref
+        loc = np.array([[self.ekf_pn_func(t_adj), 
+                         self.ekf_pe_func(t_adj), 
+                         self.ekf_pd_func(t_adj)]])
+        return loc
+    
+    def set_desired_loc_func(self, start_t, end_t):
+        """
+        Computes and saves a function describing the desired location between
+        times start_t and end_t (in ms) using least-squares methods on the locations
+        observed between those two times
+        
+        TODO: Rewrite to accept a desired starting and end altitude
+              Consider accepting start/end positions orthogonal to the baseline
+              might produce inverted path if copter starts west and moves east
+        """
+        # Collect position data for the times in question
+        positions = self.get_ekf_loc(end_t)
+        for t in np.arange(start_t, end_t, 1000./30):
+            positions = np.append(positions, self.get_ekf_loc(t), axis=0)
+            
+        # Run svd to find the direction of maximum variation in the data
+        mean = np.mean(positions,axis = 0)
+        u,s,v = np.linalg.svd(positions-mean)
+        dir = v[0]
+        
+        # Create points for desired location line
+        end_pos_norm = -np.linalg.norm(self.get_ekf_loc(end_t) - mean)
+        start_pos_norm = np.linalg.norm(self.get_ekf_loc(start_t) - mean)
+        magnitudes = np.linspace(start_pos_norm,end_pos_norm)
+        points = np.outer(dir, magnitudes.T) + np.outer(mean, np.ones(magnitudes.shape))
+        
+        # Create corresponding timestamps and interpolation functions
+        t = np.linspace(start_t, end_t, num = magnitudes.shape) - self.time_ref
+        self.desired_pn_func = interpolate.interp1d(t, points[0,:])
+        self.desired_pe_func = interpolate.interp1d(t, points[1,:])
+        self.desired_pd_func = interpolate.interp1d(t, points[2,:])
+        
+        ax = m3d.Axes3D(plt.figure(1))
+        ax.scatter3D(*positions.T)
+        ax.plot3D(*points)
+        ax.scatter3D(*self.get_ekf_loc(start_t).T, c='r')
+        ax.scatter3D(*points[:,1],c='r')
+        plt.show()
+        
+    def get_desired_loc(self,t):
+        """
+        returns the desired position at time t in NED coordinates. 
+        set_desired_loc_func must be called before calling this function
+        """
+        t_adj = t - self.time_ref
+        loc = np.array([[self.desired_pn_func(t_adj), 
+                         self.desired_pe_func(t_adj), 
+                         self.desired_pd_func(t_adj)]])
         return loc
         
