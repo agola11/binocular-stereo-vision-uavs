@@ -99,6 +99,7 @@ def takeoff():
 				return
 			time.sleep(0.1)
 		
+		time.sleep(1)
 		print 'Taken Off to %d' % msg['arg1']
 		cs.send('Taken Off')
 		state += 1
@@ -138,6 +139,7 @@ def goto_init():
 				return
 			time.sleep(0.1)
 
+		time.sleep(1)
 		print 'Arrived at ', str(loc)
 		cs.send('Arrived')
 		state += 1
