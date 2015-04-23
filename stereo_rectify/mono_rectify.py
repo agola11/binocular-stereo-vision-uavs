@@ -88,16 +88,13 @@ class MonoRectify:
         T1 = ned2wun_loc(current_loc)
         T2 = ned2wun_loc(target_loc)
         T3 = -self.newF.dot(R2.dot(R1inv.dot(T1))) + self.newF.dot(T2)
-        print self.newF.dot(R2.dot(R1inv.dot(T1))), self.newF.dot(T2)
         
         # Calculate full homography
         K = self.plane_vector(10000, ned2image_yaw(target_yaw))
         KtilT = K.T.dot(R1inv.dot(newFinv))
-        print KtilT
-        print P
         c = 1-KtilT.dot(self.newF.dot(T1))
-        print T3.dot(KtilT)
         H = P-1/c*T3.dot(KtilT)
+        
         rotated_frame = cv2.warpPerspective(undistorted_frame,H,(self.w,self.h))
         return rotated_frame, frame
         
