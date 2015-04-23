@@ -46,10 +46,9 @@ r_first_data_time_ms = 20253.566 - 1055054.0
 #8475.1333 = 254 frames
 
 output_fname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Stereo.avi"
+write_to_file = True
 target_yaw = 247
 target_pitch = 0
-
-write_to_file = False
 
 F = np.array([[  1.65378644e+03,   0.00000000e+00,   9.35778810e+02],
               [  0.00000000e+00,   1.66564440e+03,   5.29772404e+02],
@@ -64,17 +63,18 @@ cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 
 # Start log reader and mono rectifiers
 left_reader = lr.LogReader(l_logname,l_first_data_time_ms)
-left_reader.set_desired_loc_func(l_rect_start_time_ms, l_rect_start_time_ms + 400*1000/30)
+left_reader.set_desired_loc_func(l_rect_start_time_ms, l_rect_start_time_ms + 402*1000/30)
 left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, 1)
 left_mono.seek_time(l_rect_start_time_ms)
 
 right_reader = lr.LogReader(r_logname,r_first_data_time_ms)
+right_reader.set_desired_loc_func(r_rect_start_time_ms, r_rect_start_time_ms + 402*1000/30)
 right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, -1)
 right_mono.seek_time(r_rect_start_time_ms)
 
 #plt.figure(1)
 #plt.show()
-rectifier = sr.StereoRectify(left_mono,right_mono,yaw_offset = -2)
+rectifier = sr.StereoRectify(left_mono,right_mono,yaw_offset = 2)
 
 # Start VideoWriter
 if(write_to_file):
@@ -88,7 +88,7 @@ if(write_to_file):
         quit()
     
 
-for i in range(500):
+for i in range(400):
     stitched_frame = rectifier.get_frame(target_yaw,target_pitch)
     print stitched_frame.shape
 

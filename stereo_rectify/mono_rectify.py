@@ -64,9 +64,14 @@ class MonoRectify:
         current_loc = self.log.get_ekf_loc(now)
         target_loc = self.log.get_desired_loc(now)
         
+        # For debugging
+        target_loc = current_loc
+        #target_yaw = current_yaw
+        #target_pitch = self.pitch
+        
         # Calculate R1: World frame to camera frame
         R_y1 = self.yaw_matrix(ned2image_yaw(current_yaw))
-        R_p1 = self.pitch_matrix(self.pitch) #TODO: Invert Pitch?
+        R_p1 = self.pitch_matrix(self.pitch) 
         R1 = R_p1.dot(R_y1)
         
         # Calculate R2: World frame to desired frame
@@ -79,10 +84,21 @@ class MonoRectify:
         R1inv = np.linalg.inv(R1)
         P = self.newF.dot(R2.dot(R1inv.dot(newFinv)))
        
+        # Translation Vectors
+        T1 = ned2wun_loc(current_loc)
+        T2 = ned2wun_loc(target_loc)
+        T3 = -self.newF.dot(R2.dot(R1inv.dot(T1))) + self.newF.dot(T2)
+        print self.newF.dot(R2.dot(R1inv.dot(T1))), self.newF.dot(T2)
+        
         # Calculate full homography
-        
-        
-        rotated_frame = cv2.warpPerspective(undistorted_frame,P,(self.w,self.h))
+        K = self.plane_vector(10000, ned2image_yaw(target_yaw))
+        KtilT = K.T.dot(R1inv.dot(newFinv))
+        print KtilT
+        print P
+        c = 1-KtilT.dot(self.newF.dot(T1))
+        print T3.dot(KtilT)
+        H = P-1/c*T3.dot(KtilT)
+        rotated_frame = cv2.warpPerspective(undistorted_frame,H,(self.w,self.h))
         return rotated_frame, frame
         
     def undistort_frame(self, frame):
@@ -108,8 +124,8 @@ class MonoRectify:
         #              [np.sin(th), np.cos(th),  0],
         #              [0, 0, 1]])
         th_rad = np.deg2rad(th)
-        R = np.array([[np.cos(th_rad),  0, np.sin(th_rad)],
-                      [0,               1, 0],
+        R = np.array([[ np.cos(th_rad), 0, np.sin(th_rad)],
+                      [              0, 1,              0],
                       [-np.sin(th_rad), 0, np.cos(th_rad)]])
         return R
         
@@ -118,10 +134,25 @@ class MonoRectify:
         Pitch frame up by th radians
         """        
         th_rad = np.deg2rad(th)
-        R = np.array([[1, 0,              0],
+        R = np.array([[1,              0,               0],
                       [0, np.cos(th_rad), -np.sin(th_rad)],
-                      [0, np.sin(th_rad), np.cos(th_rad)]])
+                      [0, np.sin(th_rad),  np.cos(th_rad)]])
         return R
+        
+    def plane_vector(self, dist, target_yaw):
+        """
+        Returns the defining vector for a plane dist cm away from the 
+        camera in WUN coordinates
+        """
+        th_rad = np.deg2rad(target_yaw)
+        # Normal vector 
+        # TODO: Check this for all yaw quadrants
+        n_wun = np.array([[np.sin(th_rad)], 
+                          [0], 
+                          [np.cos(th_rad)]])
+        
+        K = n_wun/dist
+        return K
 
 def ned2image_yaw(th):
     """
@@ -130,10 +161,15 @@ def ned2image_yaw(th):
     """
     return 360 - th
     
-def ned2wun_loc(ned_loc)
+def ned2wun_loc(ned_loc):
     """
     Converts a location in the North-East-Down coordinate frame to the 
-    West-Up-North frame used by the camera rotations.
+    West-Up-North frame used by the camera rotations. Converts from m to
+    cm in doing so.
     """
-    wun_loc = np.array([[-ned_loc[1], -ned_loc[2], ned_loc[0]])
+    print ned_loc
+    wun_loc = np.array([[-ned_loc[0,1]], 
+                        [-ned_loc[0,2]], 
+                        [ned_loc[0,0]]])
+    wun_loc = wun_loc*100
     return wun_loc

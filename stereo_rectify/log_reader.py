@@ -191,7 +191,7 @@ class LogReader:
         points = np.outer(dir, magnitudes.T) + np.outer(mean, np.ones(magnitudes.shape))
         
         # Create corresponding timestamps and interpolation functions
-        t = np.linspace(start_t, end_t, num = magnitudes.shape) - self.time_ref
+        t = np.linspace(start_t, end_t, num=magnitudes.shape[0]) - self.time_ref
         self.desired_pn_func = interpolate.interp1d(t, points[0,:])
         self.desired_pe_func = interpolate.interp1d(t, points[1,:])
         self.desired_pd_func = interpolate.interp1d(t, points[2,:])
