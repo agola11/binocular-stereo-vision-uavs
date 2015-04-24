@@ -104,7 +104,7 @@ def takeoff():
 		cs.send('Taken Off')
 		state += 1
 
-def at_loc((x, y), (cx, cy), eps=0.00003):
+def at_loc((x, y), (cx, cy), eps=0.000035):
 	"""
 	check if current lat, lon (x, y) is within eps of target lat, lon (cx, cy)
 	"""
