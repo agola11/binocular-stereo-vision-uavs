@@ -41,8 +41,8 @@ X = np.vstack((X_ball, X_back))
 y = np.hstack((y_ball, y_back))
 
 # Train the SVM
-C = 10
-gamma = 2
+C = 30
+gamma = 4
 clf = svm.SVC(C=C, kernel='rbf', gamma=gamma, cache_size=1500).fit(X, y)
 
 # Save the model
