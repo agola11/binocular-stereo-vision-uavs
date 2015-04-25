@@ -53,7 +53,7 @@ class MonoRectify:
         """
         self.cap.set(cv2.cv.CV_CAP_PROP_POS_MSEC, time)
         
-    def get_frame(self, target_yaw, target_pitch, distance, target_loc = None):
+    def get_frame(self, target_yaw, target_pitch, target_loc = None, distance = 0):
         """
         returns the next frame in the video, rectified to face direction 
         target_yaw and pitched target_pitch degrees down. distance describes a distance
@@ -96,7 +96,10 @@ class MonoRectify:
         T2 = ned2wun_loc(target_loc)
         
         # Get plane equation for translational corrections
-        K = self.plane_vector(distance, ned2image_yaw(target_yaw))
+        if distance == 0:
+            K = self.horizontal_plane_vector()
+        else:
+            K = self.plane_vector(distance, ned2image_yaw(target_yaw))
         
         # Calculate full homography and transform frame
         H = self.get_homography(R1,R2,T1,T2,K)
@@ -181,9 +184,9 @@ class MonoRectify:
                       [0, np.sin(th_rad),  np.cos(th_rad)]])
         return R
         
-    def plane_vector(self, dist, target_yaw):
+    def vertical_plane_vector(self, dist, target_loc, target_yaw):
         """
-        Returns the defining vector for a plane dist cm away from the 
+        Returns the defining vector for a vertical plane dist cm away from the 
         camera in WUN coordinates
         """
         th_rad = np.deg2rad(target_yaw)
@@ -196,6 +199,18 @@ class MonoRectify:
         K = n_wun/dist
         return K
 
+    def horizontal_plane_vector(self):
+        """
+        Returns the defining vector for a ground plane dist cm away from the 
+        drone in WUN coordinates
+        """
+        # Normal vector 
+        n_wun = np.array([[0], 
+                          [1], 
+                          [0]])
+        
+        K = n_wun/.000001
+        return K
 def ned2image_yaw(th):
     """
     Converts a yaw angle in the North-East-Down frame to the 
@@ -206,12 +221,11 @@ def ned2image_yaw(th):
 def ned2wun_loc(ned_loc):
     """
     Converts a location in the North-East-Down coordinate frame to the 
-    West-Up-North frame used by the camera rotations. Converts from m to
-    cm in doing so.
+    West-Up-North frame used by the camera rotations.
     """
     print ned_loc
     wun_loc = np.array([[-ned_loc[0,1]], 
                         [-ned_loc[0,2]], 
                         [ned_loc[0,0]]])
-    #wun_loc = wun_loc*100
+    #wun_loc = wun_loc*100 #Convert from m to cm
     return wun_loc

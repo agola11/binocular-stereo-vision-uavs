@@ -65,7 +65,7 @@ for i in range(0,num_frames):
     #print target_loc
     #target_loc = np.array([target_loc])
     #new_frame, orig_frame = mono.get_frame(0, 0, target_loc, 310)
-    new_frame, orig_frame = mono.get_frame(160,0,518,np.array([[0.,0.,-2]])) 
+    new_frame, orig_frame = mono.get_frame(160,0,5.18,np.array([[0.,0.,-2]])) 
     
     cv2.imshow(orig_window,orig_frame[::2,::2,:])
     cv2.imshow(new_window,new_frame[::2,::2,:])

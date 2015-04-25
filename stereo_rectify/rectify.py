@@ -14,41 +14,24 @@ import subprocess as sp
 # Correct yaw measurements for camera pitch
 
 #Initial flight start frame - 5476
-#l_fname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Left.MP4"
-#l_logname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Left.log"
-#l_rect_start_frame = 14380
-#l_first_data_time_ms = 8408.4
+l_fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Left.MP4"
+l_logname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Left.log"
+l_rect_start_time_ms = 259000
+l_first_data_time_ms = 14414.4
 
-#stereo_offset = (8475.13333 - 8408.4)*30/1000
+stereo_offset = (14481.133 - 14414.4)
 
-#r_fname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Right.MP4"
-#r_logname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Right.log"
-#r_rect_start_frame = l_rect_start_frame + int(stereo_offset)
-#r_first_data_time_ms = 26092.73333
-#8475.1333 = 254 frames
-
-#output_fname = "c:\\Users\\Joseph\Videos\\2015-04-13 18-55-53\\Stereo.avi"
-#target_yaw = 245
-#target_pitch = 0
-
-#Initial flight start frame - 5476
-l_fname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Left2.MP4"
-l_logname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Left.log"
-l_rect_start_time_ms = 750000
-l_first_data_time_ms = 10176.83 - 1055054.0
-
-stereo_offset = (10110.1 - 10176.83)
-
-r_fname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Right2.MP4"
-r_logname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Right.log"
+r_fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Right.MP4"
+r_logname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Right.log"
 r_rect_start_time_ms = l_rect_start_time_ms + int(stereo_offset)
-r_first_data_time_ms = 20253.566 - 1055054.0
+r_first_data_time_ms = 31064.366
 #8475.1333 = 254 frames
 
-output_fname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Stereo_Raw.avi"
-write_to_file = False
-target_yaw = 247
-target_pitch = 0
+output_fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Stereo.avi"
+write_to_file = True
+target_yaw = 250
+target_pitch = 75
+num_frames = 400
 
 F = np.array([[  1.65378644e+03,   0.00000000e+00,   9.35778810e+02],
               [  0.00000000e+00,   1.66564440e+03,   5.29772404e+02],
@@ -63,18 +46,18 @@ cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 
 # Start log reader and mono rectifiers
 left_reader = lr.LogReader(l_logname,l_first_data_time_ms)
-left_reader.set_desired_loc_func(l_rect_start_time_ms, l_rect_start_time_ms + 402*1000/30)
-left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, 1)
+left_reader.set_desired_loc_func(l_rect_start_time_ms, l_rect_start_time_ms + (num_frames+2)*1000/30)
+left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, 76)
 left_mono.seek_time(l_rect_start_time_ms)
 
 right_reader = lr.LogReader(r_logname,r_first_data_time_ms)
-right_reader.set_desired_loc_func(r_rect_start_time_ms, r_rect_start_time_ms + 402*1000/30)
-right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, -1)
+right_reader.set_desired_loc_func(r_rect_start_time_ms, r_rect_start_time_ms + (num_frames+2)*1000/30)
+right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, 74)
 right_mono.seek_time(r_rect_start_time_ms)
 
 #plt.figure(1)
 #plt.show()
-rectifier = sr.StereoRectify(left_mono,right_mono,yaw_offset = 2)
+rectifier = sr.StereoRectify(left_mono,right_mono,yaw_offset = 0)
 
 # Start VideoWriter
 if(write_to_file):
@@ -88,7 +71,7 @@ if(write_to_file):
         quit()
     
 
-for i in range(400):
+for i in range(num_frames):
     stitched_frame = rectifier.get_frame(target_yaw,target_pitch)
     print stitched_frame.shape
 
