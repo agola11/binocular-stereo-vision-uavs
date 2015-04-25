@@ -1,7 +1,6 @@
 '''
-sock_client.py:
-	Simulated Copter Client
-
+copter_client.py
+	Actual copter client.
 Author:
 	Ankush Gola
 '''

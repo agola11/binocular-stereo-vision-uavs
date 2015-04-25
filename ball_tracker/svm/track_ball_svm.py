@@ -24,7 +24,7 @@ def flatten(img):
 vw = cv2.VideoWriter
 
 frame_count = 1
-vid = 'cloudy_test.mov'
+vid = 'output.mp4'
 out = 'out.avi'
 log = 'ball_track.log'
 
@@ -62,13 +62,11 @@ while True:
 	if circles != None:
 		(x, y, r) = circles[0,:][0]
 		print (x, y, r)
-		print (str(frame_count) + ' ' + str((x, y, r)), file=f)
+		print (str(frame_count) + ' ' + str(cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC))+ ' ' + str((x, y, r)), file=f)
 		cv2.circle(frame, (x, y), r, (0,255,0), 2)
 		cv2.circle(frame,(x, y), 3 ,(0,0,255),3)
 
 	frame_count+=1
-
-	cv2.imwrite('results/svm_cloudy_frame_' + str(frame_count) + '.jpg', frame)
 
 	vw.write(frame)
 	cv2.imshow('frame',frame)
