@@ -27,8 +27,8 @@ class StereoRectify:
         """
         Returns a side-by-side stitching of the next left and right frames
         """
-        left_frame, old_frame = self.left.get_frame(target_yaw - self.yaw_offset/2, target_pitch,None,30000)
-        right_frame, old_frame = self.right.get_frame(target_yaw + self.yaw_offset/2, target_pitch,None,30000)
+        left_frame, old_frame = self.left.get_frame(target_yaw - self.yaw_offset/2, target_pitch,None,0)
+        right_frame, old_frame = self.right.get_frame(target_yaw + self.yaw_offset/2, target_pitch,None,0)
         
         #sanity check
         (h,w) = left_frame.shape[:2]

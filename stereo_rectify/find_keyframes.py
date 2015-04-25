@@ -1,6 +1,6 @@
 import cv2
 
-fname = "c:\\Users\\Joseph\Videos\\TranslationTest\\Down.MP4"
+fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Right.MP4"
 
 # Open video for reading
 cap = cv2.VideoCapture(fname)
