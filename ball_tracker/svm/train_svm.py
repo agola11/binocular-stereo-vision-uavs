@@ -18,8 +18,8 @@ def flatten(img):
 	M, N, P = img.shape
 	return img.reshape(M*N, P)
 
-ball_imgs = ['ball_2', 'ball_3', 'ball_4', 'ball_5', 'ball_6']
-back_imgs = ['sky_1', 'sky_2', 'granite', 'joseph', 'skin', 'skin_2', 'stone', 'sculpt', 'jacket', 'brick']
+ball_imgs = ['ball_s_1', 'ball_s_2', 'ball_s_3', 'ball_s_5', 'ball_s_6']
+back_imgs = ['back_t_1', 'back_t_2', 'back_t_3', 'back_t_4']
 
 ball, back = {}, {}
 
