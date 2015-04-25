@@ -137,8 +137,16 @@ class LogReader:
         self.ekf_pe_func = interpolate.interp1d(ekf_time, ekf_pe)
         self.ekf_pd_func = interpolate.interp1d(ekf_time, ekf_pd)
         
-        #plt.figure(1)
-        #plt.plot(ekf_time,ekf_pd)
+        positions = np.array([ekf_pn, -ekf_pe, -ekf_pd])
+        print positions.shape
+        ax = m3d.Axes3D(plt.figure(1))
+        ax.scatter3D(*positions)
+        
+        ax.scatter3D(*positions)
+        ax.set_xlim3d(-5,5)
+        ax.set_ylim3d(-5,5)
+        ax.set_zlim3d(-5,5)
+        plt.show()
         
     def get_att_yaw(self,t):
         """
