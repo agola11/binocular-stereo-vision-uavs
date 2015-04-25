@@ -45,8 +45,8 @@ r_rect_start_time_ms = l_rect_start_time_ms + int(stereo_offset)
 r_first_data_time_ms = 20253.566 - 1055054.0
 #8475.1333 = 254 frames
 
-output_fname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Stereo.avi"
-write_to_file = True
+output_fname = "c:\\Users\\Joseph\Videos\\2015-04-21 17-42-07\\Stereo_Raw.avi"
+write_to_file = False
 target_yaw = 247
 target_pitch = 0
 
