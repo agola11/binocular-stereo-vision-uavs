@@ -39,6 +39,8 @@ fps = int(cap.get(cv2.cv.CV_CAP_PROP_FPS))
 vw = cv2.VideoWriter(out, cv2.cv.FOURCC(*'XVID'), fps, (w, h))
 vw = cv2.VideoWriter(out, -1, fps, (w, h)) # initialize videowriter
 
+cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 6646)
+
 while True:
 	_, frame = cap.read()
 	if (frame == None):
@@ -55,10 +57,10 @@ while True:
 	Z = clf2.predict(rgb_ff)
 	Z = Z.reshape(M, N)
 
-	Z = cv2.GaussianBlur(Z.astype(np.float),(15,15),0)
+	Z = cv2.GaussianBlur(Z.astype(np.float),(11,11),0)
 	Z = (Z*255).astype(np.uint8)
 
-	circles = cv2.HoughCircles(Z,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 10)
+	circles = cv2.HoughCircles(Z,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 1)
 	if circles != None:
 		(x, y, r) = circles[0,:][0]
 		print (x, y, r)
