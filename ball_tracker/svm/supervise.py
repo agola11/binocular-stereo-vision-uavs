@@ -19,6 +19,8 @@ cap = cv2.VideoCapture('videos/'+vid)
 cv2.namedWindow('vid')
 cv2.setMouseCallback('vid', print_coords)
 
+cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 4900) # first valid frame
+
 f = open(log, 'w') # log file to write to
 frame_count = 0
 
