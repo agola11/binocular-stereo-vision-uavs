@@ -99,6 +99,16 @@ class LogReader:
         ekf_pe = np.array([])
         ekf_pd = np.array([])
         
+        m_time = np.array([])
+        m0 = np.array([])
+        m1 = np.array([])
+        m2 = np.array([])
+        m3 = np.array([])
+        m4 = np.array([])
+        m5 = np.array([])
+        m6 = np.array([])
+        m7 = np.array([])
+        
         #Iterate over all messages in log file
         for row in reader:    
             if row[0] == 'ATT':
@@ -120,6 +130,16 @@ class LogReader:
                 ekf_pn = np.append(ekf_pn,float(row[8]))
                 ekf_pe = np.append(ekf_pe,float(row[9]))
                 ekf_pd = np.append(ekf_pd,float(row[10]))
+            if row[0] == 'RCOU':
+                m_time = np.append(m_time,flaot(row[1])
+                m0 = np.append(m0,float(row[2]))
+                m1 = np.append(m1,float(row[3]))
+                m2 = np.append(m2,float(row[4]))
+                m3 = np.append(m3,float(row[5]))
+                m4 = np.append(m4,float(row[6]))
+                m5 = np.append(m5,float(row[7]))
+                m6 = np.append(m6,float(row[8]))
+                m7 = np.append(m7,float(row[9]))
         attfile.close()
         
         # Instantiate interpolation functions
@@ -137,6 +157,15 @@ class LogReader:
         self.ekf_pe_func = interpolate.interp1d(ekf_time, ekf_pe)
         self.ekf_pd_func = interpolate.interp1d(ekf_time, ekf_pd)
         
+        self.m0_func = interpolate.interp1d(m_time, m0)
+        self.m1_func = interpolate.interp1d(m_time, m1)
+        self.m2_func = interpolate.interp1d(m_time, m2)
+        self.m3_func = interpolate.interp1d(m_time, m3)
+        self.m4_func = interpolate.interp1d(m_time, m4)
+        self.m5_func = interpolate.interp1d(m_time, m5)
+        self.m6_func = interpolate.interp1d(m_time, m6)
+        self.m7_func = interpolate.interp1d(m_time, m7)
+        
         positions = np.array([ekf_pn, -ekf_pe, -ekf_pd])
         print positions.shape
         ax = m3d.Axes3D(plt.figure(1))
@@ -147,7 +176,22 @@ class LogReader:
         ax.set_ylim3d(-5,5)
         ax.set_zlim3d(-5,5)
         plt.show()
-        
+    
+    def get_motor_vals(self,t)
+        """
+        returns an 8-vector containing the 8 motor outputs from the X8
+        """
+        t_adj = t-self.time_ref
+        v = np.array([self.m0_func(t_adj),
+                      self.m1_func(t_adj),
+                      self.m2_func(t_adj),
+                      self.m3_func(t_adj),
+                      self.m4_func(t_adj),
+                      self.m5_func(t_adj),
+                      self.m6_func(t_adj),
+                      self.m7_func(t_adj)])
+        return v
+    
     def get_att_yaw(self,t):
         """
         Returns the yaw value at video time t, interpolated from the log file
