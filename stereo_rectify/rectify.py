@@ -28,9 +28,9 @@ r_first_data_time_ms = 31064.366
 #8475.1333 = 254 frames
 
 output_fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Stereo.avi"
-write_to_file = True
+write_to_file = False
 target_yaw = 250
-target_pitch = 75
+target_pitch = -75
 num_frames = 400
 
 F = np.array([[  1.65378644e+03,   0.00000000e+00,   9.35778810e+02],
@@ -47,12 +47,12 @@ cv2.namedWindow(new_window,cv2.WINDOW_AUTOSIZE)
 # Start log reader and mono rectifiers
 left_reader = lr.LogReader(l_logname,l_first_data_time_ms)
 left_reader.set_desired_loc_func(l_rect_start_time_ms, l_rect_start_time_ms + (num_frames+2)*1000/30)
-left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, 76)
+left_mono = mr.MonoRectify(l_fname, left_reader, F, dist, -76)
 left_mono.seek_time(l_rect_start_time_ms)
 
 right_reader = lr.LogReader(r_logname,r_first_data_time_ms)
 right_reader.set_desired_loc_func(r_rect_start_time_ms, r_rect_start_time_ms + (num_frames+2)*1000/30)
-right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, 74)
+right_mono = mr.MonoRectify(r_fname, right_reader, F, dist, -74)
 right_mono.seek_time(r_rect_start_time_ms)
 
 #plt.figure(1)

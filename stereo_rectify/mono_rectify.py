@@ -176,12 +176,12 @@ class MonoRectify:
         
     def pitch_matrix(self, th):
         """
-        Pitch frame up by th radians
+        Pitch frame down by th radians
         """        
         th_rad = np.deg2rad(th)
-        R = np.array([[1,              0,               0],
-                      [0, np.cos(th_rad), -np.sin(th_rad)],
-                      [0, np.sin(th_rad),  np.cos(th_rad)]])
+        R = np.array([[1,               0,               0],
+                      [0,  np.cos(th_rad), np.sin(th_rad)],
+                      [0, -np.sin(th_rad), np.cos(th_rad)]])
         return R
         
     def vertical_plane_vector(self, dist, target_loc, target_yaw):
