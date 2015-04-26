@@ -131,7 +131,7 @@ class LogReader:
                 ekf_pe = np.append(ekf_pe,float(row[9]))
                 ekf_pd = np.append(ekf_pd,float(row[10]))
             if row[0] == 'RCOU':
-                m_time = np.append(m_time,flaot(row[1])
+                m_time = np.append(m_time,float(row[1]))
                 m0 = np.append(m0,float(row[2]))
                 m1 = np.append(m1,float(row[3]))
                 m2 = np.append(m2,float(row[4]))
@@ -166,8 +166,9 @@ class LogReader:
         self.m6_func = interpolate.interp1d(m_time, m6)
         self.m7_func = interpolate.interp1d(m_time, m7)
         
+        print m_time[0], m_time[-1]
+        
         positions = np.array([ekf_pn, -ekf_pe, -ekf_pd])
-        print positions.shape
         ax = m3d.Axes3D(plt.figure(1))
         ax.scatter3D(*positions)
         
@@ -177,7 +178,7 @@ class LogReader:
         ax.set_zlim3d(-5,5)
         plt.show()
     
-    def get_motor_vals(self,t)
+    def get_motor_vals(self,t):
         """
         returns an 8-vector containing the 8 motor outputs from the X8
         """
