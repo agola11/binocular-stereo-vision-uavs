@@ -1,0 +1,16 @@
+up
+pitch left - 1,5,7,3 high, 4,0,2,6 low
+pitch right - 0,4,2,6 high, 1,5,3,7 low
+forward - 2,6,7,3 high, 4,0,1,5 low
+back - 4,0,1,5 high, 2,6,7,3 low
+left - 0,6,5,3 high, 4,2,1,7 low
+right - 4,2,1,7 high, 0,6,5,3 low
+
+0 - front
+1 - front
+2 - rear
+3 - rear
+4 - front
+5 - front
+6 - rear
+7 - rear
