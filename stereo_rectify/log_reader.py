@@ -193,6 +193,16 @@ class LogReader:
                       self.m7_func(t_adj)])
         return v
     
+    def get_ekf_vel(self,t):
+        """
+        returns the velocity of the drone in NED coordinates
+        """
+        t_adj = t-self.time_ref
+        vel = np.array([self.ekf_vn_func(t_adj),
+                        self.ekf_ve_func(t_adj),
+                        self.ekf_vd_func(t_adj)])
+        return vel
+    
     def get_att_yaw(self,t):
         """
         Returns the yaw value at video time t, interpolated from the log file
@@ -206,6 +216,17 @@ class LogReader:
         """
         return self.ekf_yaw_func(t-self.time_ref)
         
+    def get_ekf_att(self,t):
+        """
+        returns a 3-vector containing the (roll, pitch, yaw) of the UAV at time t
+        """
+        t_adj = t-self.time_ref
+        att = np.array([self.ekf_roll_func(t_adj),
+                        self.ekf_pitch_func(t_adj),
+                        self.ekf_yaw_func(t_adj)])
+        
+        return att
+        
     def get_ekf_loc(self, t):
         """
         Returns the NED location in meters relative to the drone's position when 
@@ -216,6 +237,18 @@ class LogReader:
                          self.ekf_pe_func(t_adj), 
                          self.ekf_pd_func(t_adj)]])
         return loc
+        
+    def get_ekf_loc_1d(self, t):
+        """
+        Returns the NED location in meters relative to the drone's position when 
+        armed as a 1-dimensional numpy vector
+        """
+        t_adj = t - self.time_ref
+        loc = np.array([self.ekf_pn_func(t_adj), 
+                        self.ekf_pe_func(t_adj), 
+                        self.ekf_pd_func(t_adj)])
+        return loc
+    
     
     def set_desired_loc_func(self, start_t, end_t):
         """
