@@ -193,14 +193,14 @@ class LogReader:
         returns an 8-vector containing the 8 motor outputs from the X8
         """
         t_adj = t-self.time_ref
-        v = np.array([self.m0_func(t_adj),
-                      self.m1_func(t_adj),
-                      self.m2_func(t_adj),
-                      self.m3_func(t_adj),
-                      self.m4_func(t_adj),
-                      self.m5_func(t_adj),
-                      self.m6_func(t_adj),
-                      self.m7_func(t_adj)])
+        v = np.array([self.m0_func(t_adj),  # front-right-upper
+                      self.m1_func(t_adj),  # front-left-upper
+                      self.m3_func(t_adj),  # back-right-upper
+                      self.m2_func(t_adj),  # back-left-upper
+                      self.m5_func(t_adj),  # front-right-lower
+                      self.m4_func(t_adj),  # front-left-lower
+                      self.m6_func(t_adj),  # back-right-lower
+                      self.m7_func(t_adj)]) # back-left-lower
         return v
     
     def get_ekf_vel(self,t):

@@ -6,11 +6,11 @@ back - 4,0,1,5 high, 2,6,7,3 low
 left - 0,6,5,3 high, 4,2,1,7 low
 right - 4,2,1,7 high, 0,6,5,3 low
 
-0 - front
-1 - front
-2 - rear
-3 - rear
-4 - front
-5 - front
-6 - rear
-7 - rear
+0 - front right upper
+1 - front left upper
+2 - back left upper
+3 - back right upper
+4 - front left lower
+5 - front right lower
+6 - back right lower
+7 - back left lower
