@@ -109,6 +109,13 @@ class LogReader:
         m6 = np.array([])
         m7 = np.array([])
         
+        ntun_time = np.array([])
+        ntun_vn = np.array([])
+        ntun_ve = np.array([])
+        
+        gps_time = np.array([])
+        gps_vd = np.array([])
+        
         #Iterate over all messages in log file
         for row in reader:    
             if row[0] == 'ATT':
@@ -140,6 +147,9 @@ class LogReader:
                 m5 = np.append(m5,float(row[7]))
                 m6 = np.append(m6,float(row[8]))
                 m7 = np.append(m7,float(row[9]))
+            if row[0] == 'NTUN':
+                pass
+                
         attfile.close()
         
         # Instantiate interpolation functions
