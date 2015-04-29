@@ -17,9 +17,9 @@ def get_R(att):
     R = r_roll.dot(r_pitch.dot(r_yaw))
     return R
 
-fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\sysid.log"
+fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Ball_sysid.log"
 #fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Right.log"
-t0 =  80000
+t0 =  95000
 #t0 = 186500
 tspan = 120000
 #t0 = 92000
@@ -47,10 +47,15 @@ b,a = sig.iirfilter(4,.3,btype = 'lowpass')
 body_acc = np.diff(body_vel,axis=1)*f
 filtered_acc = sig.lfilter(b,a,body_acc,axis=1)
 sumd = np.sum(motor_vals,axis=0)
-
 acc_adj = body_acc[2,:] - (g*np.cos(att[1,:])*np.cos(att[0,:]))[0:-1]
 k1 = -m*acc_adj/sumd[0:-1]
 print k1.shape, np.mean(k1)
+
+b,a = sig.iirfilter(4,.3,btype = 'lowpass')
+att = sig.lfilter(b,a,att,axis=1)
+att_vel = np.diff(att,axis=1)*f
+att_acc = np.diff(att_vel,axis=1)*f
+
 
 plt.figure(1)
 l0=plt.plot(t_s, motor_vals[0,:],label='0')
@@ -64,10 +69,10 @@ l7=plt.plot(t_s, motor_vals[7,:],'o',label='7')
 plt.legend()
 
 plt.figure(2)
-plt.plot(t_s,body_vel[2,:])
-plt.plot(t_s,pos[2,:])
-plt.plot(t_s[0:-1],body_acc[2,:])
-plt.plot(t_s[0:-1],filtered_acc[2,:])
+plt.plot(t_s,att[0,:],label='roll')
+plt.plot(t_s[0:-1],att_vel[0,:],label = 'roll speed')
+plt.plot(t_s[0:-2],att_acc[0,:],label = 'roll acc')
+plt.legend()
 
 plt.figure(3)
 plt.scatter(sumd[0:-1],-m*acc_adj,marker='.')

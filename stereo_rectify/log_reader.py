@@ -176,8 +176,6 @@ class LogReader:
         self.m6_func = interpolate.interp1d(m_time, m6)
         self.m7_func = interpolate.interp1d(m_time, m7)
         
-        print m_time[0], m_time[-1]
-        
         positions = np.array([ekf_pn, -ekf_pe, -ekf_pd])
         ax = m3d.Axes3D(plt.figure(1))
         ax.scatter3D(*positions)
