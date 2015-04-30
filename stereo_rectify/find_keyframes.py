@@ -1,6 +1,7 @@
 import cv2
 
-fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Right.MP4"
+#fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Left.MP4"
+fname = "c:\\Users\\Joseph\Documents\\14-15\\Thesis\\SeniorThesis2015\\ball_tracker\\svm\\videos\\output.MP4"
 
 # Open video for reading
 cap = cv2.VideoCapture(fname)
@@ -10,7 +11,7 @@ if(not cap.isOpened()):
     quit()
 
 window_name = "Video"
-#cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 13100)
+cap.set(cv2.cv.CV_CAP_PROP_POS_MSEC, 140000)
 print cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)/cap.get(cv2.cv.CV_CAP_PROP_FPS)*1000
 print cap.get(cv2.cv.CV_CAP_PROP_FPS), cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
 
@@ -24,4 +25,4 @@ while True:
     if(not retval):
         break
     cv2.imshow(window_name,frame[::2,::2,:])
-    cv2.waitKey()
+    cv2.waitKey() 
