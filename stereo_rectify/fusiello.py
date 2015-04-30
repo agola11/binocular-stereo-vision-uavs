@@ -1,3 +1,10 @@
+"""
+fusiello.py
+	An implementation of the stereo rectification algorithm as described by Fusiello et al.
+	in "A compact algorithm for rectification of stereo pairs", 1999.
+	Implementation ported to python based on MATLAB code provided in paper.
+"""
+
 import numpy as np
 
 def rectify(Po1, Po2):
