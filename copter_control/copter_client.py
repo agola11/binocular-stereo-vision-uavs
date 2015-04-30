@@ -19,7 +19,7 @@ def error(msg):
 	"""
 	for debugging
 	"""
-	print('ERR: ' + msg)
+	print('ERR: ' + str(msg))
 
 def connect():
 	"""
@@ -170,7 +170,7 @@ def formation():
 			cc.goto((p[0], p[1]), p[2])
 			
 			while not at_loc((cc.get_current_location().lat, cc.get_current_location().lon), (p[0], p[1])):
-				time.sleep(0.001)
+				time.sleep(0.001) # avoid consuming too much CPU time
 			
 			print 'Arrived'
 			cs.send('Arrived')

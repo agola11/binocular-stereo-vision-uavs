@@ -19,7 +19,7 @@ def error(msg):
 	"""
 	for debugging
 	"""
-	print('ERR: ' + msg)
+	print('ERR: ' + str(msg))
 
 def connect():
 	"""

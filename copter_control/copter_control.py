@@ -13,8 +13,8 @@ class CopterControl(object):
 	CopterControl is a wrapper class for droneapi.lib.Vehicle that
 	includes added control functionality
 
-	This class is heavily adapted from Daniel Nugent's VehicleControl class
-	(djnugent on GitHub, project: SmartCamera)
+	This class is heavily adapted from Randy Mackay's VehicleControl class
+	(rmackay on GitHub, project: SmartCamera)
 	"""
 
 	def __init__(self, api, vel_update=1):
