@@ -79,7 +79,7 @@ class MonoRectify:
         #current_yaw = 0
         #target_yaw = current_yaw
         #target_pitch = self.pitch
-        target_yaw = (target_yaw - current_yaw)*.75 + current_yaw
+        #target_yaw = (target_yaw - current_yaw)*.75 + current_yaw
         
         # Calculate R1: World frame to camera frame
         R_y1 = self.yaw_matrix(ned2image_yaw(current_yaw))
