@@ -2,11 +2,15 @@ import numpy as np
 import log_reader as lr
 import tracking_reader as tr
 from filterpy.kalman import UnscentedKalmanFilter as UKF
+import mpl_toolkits.mplot3d as m3d
+import matplotlib.pyplot as plt
 
 START_TIME = 254000 # ms
-END_TIME = 268200 # ms
+END_TIME = 268241 # ms
 dt = 1000.0/30 # ms
 fx_times = 1
+cum_x = np.zeros(12)
+t = START_TIME
 
 def get_R(att):
     #att = np.deg2rad(att)
@@ -27,13 +31,16 @@ def hx(x):
 	return the measurement of the state
 	"""
 	C = np.eye(12)
+	"""
 	C[9, 9] = 0
 	C[9, 0] = 1
 	C[10, 10] = 0
 	C[10, 1] = 1
 	C[11, 11] = 0
-	C[11, 2] = 1
-	return C.dot(x)
+	C[1, 2] = 1
+	"""
+	V = np.vstack((C,C[0:3:]))
+	return V.dot(x)
 
 def fx(x, dt):
 	"""
@@ -41,8 +48,7 @@ def fx(x, dt):
 	dt is in seconds
 	"""
 	global left_reader
-	global START_TIME
-	global fx_times
+	global t
 	m = 2.9 # mass in kg
 	l = .1516 # length of quadcopter rotor in
 	w = .2357
@@ -52,11 +58,8 @@ def fx(x, dt):
 	k1 = .0092
 	g = 9.8
 
-
 	dt_ms = dt * 1000
-	print START_TIME + dt_ms*fx_times
-	print x
-	mi = left_reader.get_motor_vals(START_TIME+(dt_ms*fx_times))
+	mi = left_reader.get_motor_vals(t)
 	mi = mi - 1143 # important
 	R = get_R([x[6], x[7], x[8]])
 	R_inv = np.linalg.inv(R)
@@ -88,7 +91,6 @@ def fx(x, dt):
 	state_dot = np.array([pos_dots[0], pos_dots[1], pos_dots[2], u_dot, v_dot, w_dot, att_dots[0], att_dots[1], att_dots[2], p_dot, q_dot, r_dot])
 
 	new_state = x + state_dot*dt
-	fx_times +=1
 
 	return new_state
 
@@ -126,19 +128,27 @@ att_init = np.deg2rad(left_reader.get_ekf_att(START_TIME))
 att_vel_init = np.zeros(3)
 state_init = np.hstack((pos_init,vel_init,att_init,att_vel_init))
 
-ukf = UKF(dim_x=12, dim_z=12, dt=1.0/30, fx=fx, hx=hx)
+ukf = UKF(dim_x=12, dim_z=15, dt=1.0/30, fx=fx, hx=hx)
 ukf.P = np.diag([5,5,2, 2,2,2, .017,.017,.017, .1,.1,.1])
 ukf.x = state_init
+ukf.Q = np.diag([.5,.5,.5, .5,.5,.5, .1,.1,.1, .1,.1,.1])
 
 T = np.array([16.878, -7.1368, 0])		#Translation vector joining two inertial frames
 time = np.arange(START_TIME,END_TIME,dt)
+print time.shape,time[0],time[-1]
 d = np.linspace(20,40,time.shape[0])
-zs = np.zeros((time.shape[0],12))
-Rs = np.zeros((time.shape[0],12,12))
+zs = np.zeros((time.shape[0],15))
+Rs = np.zeros((time.shape[0],15,15))
+
+means = np.zeros((time.shape[0],12))
+covs = np.zeros((time.shape[0],12,12))
+cam_locs = np.zeros((time.shape[0],3))
+ekf_locs = np.zeros((time.shape[0],3))
 
 for i in range(1,time.shape[0]):
 	t = time[i]
 	
+	ukf.predict(1.0/30)
 	# Get camera location and covariance points in ball inertial frame
 	cam_loc = track.get_mean(t,d[i]) + T
 	cam_sigs = track.get_cov(t,d[i],10) + T[:,None]
@@ -151,23 +161,49 @@ for i in range(1,time.shape[0]):
 	ekf_att = np.deg2rad(left_reader.get_ekf_att(t))
 	ekf_attdot = np.deg2rad(left_reader.get_gyr(t))
 	
-	z = np.hstack((ekf_loc,ekf_vel,ekf_att,cam_loc))
+	ekf_locs[i,:] = ekf_loc
+	cam_locs[i,:] = cam_loc
+	
+	z = np.hstack((ekf_loc,ekf_vel,ekf_att,ekf_attdot,cam_loc))
 	zs[i,:] = z
 	
-	R = np.array([[5,0,0,0,0,0,0,0,0,0,0,0],
-				  [0,5,0,0,0,0,0,0,0,0,0,0],
-				  [0,0,2,0,0,0,0,0,0,0,0,0],
-				  [0,0,0,2,0,0,0,0,0,0,0,0],
-				  [0,0,0,0,2,0,0,0,0,0,0,0],
-				  [0,0,0,0,0,2,0,0,0,0,0,0],
-				  [0,0,0,0,0,0,.01,0,0,0,0,0],
-				  [0,0,0,0,0,0,0,.01,0,0,0,0],
-				  [0,0,0,0,0,0,0,0,.01,0,0,0],
-				  [0,0,0,0,0,0,0,0,0,0,0,0],
-				  [0,0,0,0,0,0,0,0,0,0,0,0],
-				  [0,0,0,0,0,0,0,0,0,0,0,0]]).astype(float)
-	R[9:12,9:12] = cam_cov
+	R = np.array([[5,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,5,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,2,0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,2,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,.017,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,.017,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,.017,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0.1,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0.1,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0.1,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]).astype(float)
+	R[12:15,12:15] = cam_cov
 	Rs[i,:,:] = R
+	
+	ukf.update(z,R)
+	means[i,:] = ukf.x
+	
+	print means[i,:]
+	covs[i,:,:] = ukf.P
 
-means, covs = ukf.batch_filter(zs,Rs)
-print means.shape, covs.shape
+locs = means[:,0:3]
+print locs.shape
+
+ax = m3d.Axes3D(plt.figure(2))
+ax.scatter3D(*locs.T,c='r')
+ax.scatter3D(*cam_locs.T,c='g')
+ax.scatter3D(*ekf_locs.T,c='b')
+
+ax.set_xlim3d(-25,25)
+ax.set_ylim3d(-25,25)
+ax.set_zlim3d(-50,0)
+plt.show()
+#means, covs = ukf.batch_filter(zs,Rs)
+#print means.shape, covs.shape
+
+np.save("cum_x.npy", cum_x)	
