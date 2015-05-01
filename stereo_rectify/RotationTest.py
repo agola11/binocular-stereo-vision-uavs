@@ -6,7 +6,6 @@ import mono_rectify as mr
 
 # Rotation-based image rectification for a single eye
 
-
 #fname = "c:\\Users\\Joseph\Videos\\FlightWithTelem.MP4"
 #first_data_frame = 1712     # First frame with valid image data
 #rect_start_frame = 4250     # Index of frame to start rectifying at

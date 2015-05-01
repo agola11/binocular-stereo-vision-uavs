@@ -19,23 +19,27 @@ def get_R(att):
 
 fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Ball_sysid.log"
 #fname = "c:\\Users\\Joseph\Videos\\Flight With Ball\\Right.log"
-t0 =  95000
+t0 =  58000
 #t0 = 186500
-tspan = 120000
+tspan = 160000 - t0
+#tspan = 12000
 #t0 = 92000
 #tspan = 96000-92000
 f = 50.      #50 Hz sampling rate
 g = 9.8
-m = 3.2      #kg. Fix this.
+m = 2.9      #kg. Fix this.
+w = 0.2357
+l = 0.1516
 
 reader = lr.LogReader(fname,-343.67)
 t_ms = np.linspace(t0, t0+tspan, tspan*f/1000)
 t_s = t_ms/1000.
 
+gyr = reader.get_gyr(t_ms)
 pos = reader.get_ekf_loc_1d(t_ms)
 att = np.deg2rad(reader.get_ekf_att(t_ms))
 motor_vals = reader.get_motor_vals(t_ms)
-motor_vals = motor_vals - 1190          # THIS IS IMPORTANT
+motor_vals = motor_vals - 1143          # THIS IS IMPORTANT. 1190 for Camera quad.
 motor_means = np.mean(motor_vals,axis=1)
 ned_vel = reader.get_ekf_vel(t_ms)
 body_vel = np.zeros(ned_vel.shape)
@@ -50,28 +54,44 @@ sumd = np.sum(motor_vals,axis=0)
 acc_adj = body_acc[2,:] - (g*np.cos(att[1,:])*np.cos(att[0,:]))[0:-1]
 k1 = -m*acc_adj/sumd[0:-1]
 print k1.shape, np.mean(k1)
+k1 = 0.00922
 
 b,a = sig.iirfilter(4,.3,btype = 'lowpass')
-att = sig.lfilter(b,a,att,axis=1)
+#att = sig.lfilter(b,a,att,axis=1)
 att_vel = np.diff(att,axis=1)*f
 att_acc = np.diff(att_vel,axis=1)*f
+gyr_acc = np.diff(gyr,axis=1)*f
+roll_torques = k1*np.array([-w,w,-w,w,-w,w,-w,w]).dot(motor_vals)
+Ix = roll_torques[0:-1]/gyr_acc[0,:]
+print Ix.shape, np.mean(Ix)
 
+pitch_torques = k1*np.array([l,l,-l,-l,l,l,-l,-l]).dot(motor_vals)
+Iy = pitch_torques[0:-1]/gyr_acc[1,:]
+print Iy.shape, np.mean(Iy)
+
+yaw_torques = np.array([1,-1,-1,1,-1,1,1,-1]).dot(motor_vals)
+param = gyr_acc[2,:]/yaw_torques[0:-1]
+print param.shape, np.mean(param)
 
 plt.figure(1)
-l0=plt.plot(t_s, motor_vals[0,:],label='0')
-l1=plt.plot(t_s, motor_vals[1,:],label='1')
-l2=plt.plot(t_s, motor_vals[2,:],label='2')
-l3=plt.plot(t_s, motor_vals[3,:],label='3')
-l4=plt.plot(t_s, motor_vals[4,:],label='4')
-l5=plt.plot(t_s, motor_vals[5,:],label='5')
-l6=plt.plot(t_s, motor_vals[6,:],label='6')
-l7=plt.plot(t_s, motor_vals[7,:],'o',label='7')
+plt.scatter(roll_torques[0:-1], gyr_acc[0,:])
+plt.plot(np.array([-1.5,2]),1/np.mean(Ix)*np.array([-1.5,2]),label='Ix fit')
+plt.xlabel('Roll Torque')
+plt.ylabel('Roll Acceleration')
 plt.legend()
 
 plt.figure(2)
-plt.plot(t_s,att[0,:],label='roll')
-plt.plot(t_s[0:-1],att_vel[0,:],label = 'roll speed')
-plt.plot(t_s[0:-2],att_acc[0,:],label = 'roll acc')
+plt.scatter(pitch_torques[0:-1], gyr_acc[1,:])
+plt.plot(np.array([-2,1]),1/np.mean(Iy)*np.array([-2,1]),label='Iy fit')
+plt.xlabel('Pitch Torque')
+plt.ylabel('Pitch Acceleration')
+plt.legend()
+
+plt.figure(4)
+plt.scatter(yaw_torques[0:-1], gyr_acc[2,:],marker='.')
+plt.plot(np.array([-2000,2000]),np.mean(param)*np.array([-2000,2000]),label='K2/Iz fit')
+plt.xlabel('Yaw Motor Sum')
+plt.ylabel('Yaw Acceleration')
 plt.legend()
 
 plt.figure(3)
