@@ -69,6 +69,10 @@ pitch_torques = k1*np.array([l,l,-l,-l,l,l,-l,-l]).dot(motor_vals)
 Iy = pitch_torques[0:-1]/gyr_acc[1,:]
 print Iy.shape, np.mean(Iy)
 
+yaw_torques = np.array([1,-1,-1,1,-1,1,1,-1]).dot(motor_vals)
+param = gyr_acc[2,:]/yaw_torques[0:-1]
+print param.shape, np.mean(param)
+
 plt.figure(1)
 plt.scatter(roll_torques[0:-1], gyr_acc[0,:])
 plt.plot(np.array([-1.5,2]),1/np.mean(Ix)*np.array([-1.5,2]),label='Ix fit')
@@ -81,6 +85,13 @@ plt.scatter(pitch_torques[0:-1], gyr_acc[1,:])
 plt.plot(np.array([-2,1]),1/np.mean(Iy)*np.array([-2,1]),label='Iy fit')
 plt.xlabel('Pitch Torque')
 plt.ylabel('Pitch Acceleration')
+plt.legend()
+
+plt.figure(4)
+plt.scatter(yaw_torques[0:-1], gyr_acc[2,:],marker='.')
+plt.plot(np.array([-2000,2000]),np.mean(param)*np.array([-2000,2000]),label='K2/Iz fit')
+plt.xlabel('Yaw Motor Sum')
+plt.ylabel('Yaw Acceleration')
 plt.legend()
 
 plt.figure(3)
