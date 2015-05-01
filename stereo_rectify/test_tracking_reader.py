@@ -40,9 +40,9 @@ for i in range(num_points):
     observer_loc = right_reader.get_ekf_loc_1d(times[i])
     ax.scatter3D(*observer_loc)
     ball_loc = track.get_mean(times[i],d[i])
-    ax.scatter(*ball_loc,c='r')
+    ax.scatter(*ball_loc,s = 1,c='r')
 
-cov = track.get_cov(times[50],d[50],6)
+cov = track.get_cov(times[50],d[50],100)
 ax.scatter(*cov,c='g')
 
 ax.set_xlim3d(-35,10)

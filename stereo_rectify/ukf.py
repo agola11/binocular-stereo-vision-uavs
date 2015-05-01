@@ -1,7 +1,6 @@
-#!/usr/bin/python
-
 import numpy as np
-from log_reader import LogReader
+import log_reader as lr
+import tracking_reader as tr
 from filterpy.kalman import UnscentedKalmanFilter as UKF
 
 START_TIME = 254000 # ms
@@ -55,7 +54,9 @@ def fx(x, dt):
 
 
 	dt_ms = dt * 1000
-	mi = left_reader.get_motor_inputs(START_TIME+(dt_ms*fx_times))
+	print START_TIME + dt_ms*fx_times
+	print x
+	mi = left_reader.get_motor_vals(START_TIME+(dt_ms*fx_times))
 	mi = mi - 1143 # important
 	R = get_R([x[6], x[7], x[8]])
 	R_inv = np.linalg.inv(R)
@@ -91,8 +92,6 @@ def fx(x, dt):
 
 	return new_state
 
-ukf = UKF(dim_x=12, dim_z=12)
-
 """
 Log stuff
 """
@@ -121,3 +120,54 @@ right_reader = lr.LogReader(r_logname,r_first_data_time_ms)
 
 track = tr.TrackingReader(track_fname,right_reader,track_data_log_offset,F,30,1,vid_fname=vid_fname)
 
+pos_init = left_reader.get_ekf_loc_1d(START_TIME)
+vel_init = left_reader.get_ekf_vel(START_TIME)
+att_init = np.deg2rad(left_reader.get_ekf_att(START_TIME))
+att_vel_init = np.zeros(3)
+state_init = np.hstack((pos_init,vel_init,att_init,att_vel_init))
+
+ukf = UKF(dim_x=12, dim_z=12, dt=1.0/30, fx=fx, hx=hx)
+ukf.P = np.diag([5,5,2, 2,2,2, .017,.017,.017, .1,.1,.1])
+ukf.x = state_init
+
+T = np.array([16.878, -7.1368, 0])		#Translation vector joining two inertial frames
+time = np.arange(START_TIME,END_TIME,dt)
+d = np.linspace(20,40,time.shape[0])
+zs = np.zeros((time.shape[0],12))
+Rs = np.zeros((time.shape[0],12,12))
+
+for i in range(1,time.shape[0]):
+	t = time[i]
+	
+	# Get camera location and covariance points in ball inertial frame
+	cam_loc = track.get_mean(t,d[i]) + T
+	cam_sigs = track.get_cov(t,d[i],10) + T[:,None]
+	cam_points = np.vstack((cam_sigs.T, cam_loc)).T
+	cam_cov = np.cov(cam_points)
+	
+	# Get kalman filter state estimate
+	ekf_loc = left_reader.get_ekf_loc_1d(t)
+	ekf_vel = left_reader.get_ekf_vel(t)
+	ekf_att = np.deg2rad(left_reader.get_ekf_att(t))
+	ekf_attdot = np.deg2rad(left_reader.get_gyr(t))
+	
+	z = np.hstack((ekf_loc,ekf_vel,ekf_att,cam_loc))
+	zs[i,:] = z
+	
+	R = np.array([[5,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,5,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,2,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,2,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,2,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,2,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,.01,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,.01,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,.01,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0],
+				  [0,0,0,0,0,0,0,0,0,0,0,0]]).astype(float)
+	R[9:12,9:12] = cam_cov
+	Rs[i,:,:] = R
+
+means, covs = ukf.batch_filter(zs,Rs)
+print means.shape, covs.shape
