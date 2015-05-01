@@ -109,12 +109,13 @@ class LogReader:
         m6 = np.array([])
         m7 = np.array([])
         
-        ntun_time = np.array([])
-        ntun_vn = np.array([])
-        ntun_ve = np.array([])
-        
-        gps_time = np.array([])
-        gps_vd = np.array([])
+        imu_time = np.array([])
+        gyr_x = np.array([])
+        gyr_y = np.array([])
+        gyr_z = np.array([])
+        acc_x = np.array([])
+        acc_y = np.array([])
+        acc_z = np.array([])
         
         #Iterate over all messages in log file
         for row in reader:    
@@ -147,8 +148,14 @@ class LogReader:
                 m5 = np.append(m5,float(row[7]))
                 m6 = np.append(m6,float(row[8]))
                 m7 = np.append(m7,float(row[9]))
-            if row[0] == 'NTUN':
-                pass
+            if row[0] == 'IMU':
+                imu_time = np.append(imu_time, float(row[1]))
+                gyr_x = np.append(gyr_x,float(row[2]))
+                gyr_y = np.append(gyr_y,float(row[3]))
+                gyr_z = np.append(gyr_z,float(row[4]))
+                acc_x = np.append(acc_x,float(row[5]))
+                acc_y = np.append(acc_y,float(row[6]))
+                acc_z = np.append(acc_z,float(row[7]))
                 
         attfile.close()
         
@@ -176,6 +183,14 @@ class LogReader:
         self.m6_func = interpolate.interp1d(m_time, m6)
         self.m7_func = interpolate.interp1d(m_time, m7)
         
+        if imu_time.shape[0] != 0:
+            self.gyr_x_func = interpolate.interp1d(imu_time, gyr_x)
+            self.gyr_y_func = interpolate.interp1d(imu_time, gyr_y)
+            self.gyr_z_func = interpolate.interp1d(imu_time, gyr_z)
+            self.acc_x_func = interpolate.interp1d(imu_time, acc_x)
+            self.acc_y_func = interpolate.interp1d(imu_time, acc_y)
+            self.acc_z_func = interpolate.interp1d(imu_time, acc_z)
+            
         positions = np.array([ekf_pn, -ekf_pe, -ekf_pd])
         ax = m3d.Axes3D(plt.figure(1))
         ax.scatter3D(*positions)
@@ -185,6 +200,15 @@ class LogReader:
         ax.set_ylim3d(-5,5)
         ax.set_zlim3d(-5,5)
         plt.show()
+    
+    def get_gyr(self, t):
+        """
+        returns a 3-vector of x, y, and z angular velocities in the body frame degrees/s
+        """
+        t_adj = t-self.time_ref
+        return np.array([self.gyr_x_func(t_adj),
+                         self.gyr_y_func(t_adj),
+                         self.gyr_z_func(t_adj)])
     
     def get_motor_vals(self,t):
         """
