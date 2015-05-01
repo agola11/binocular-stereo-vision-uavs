@@ -13,7 +13,7 @@ def print_coords(event,x,y,flags,param):
 
 
 vid = 'output.mp4'
-log = 'super_ball_track.log'
+log = 'super_ball_track_test.log'
 
 cap = cv2.VideoCapture('videos/'+vid)
 cv2.namedWindow('vid')

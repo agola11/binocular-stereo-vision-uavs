@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import cv2
+import cv2, time
 import numpy as np
 """
 H_LOW = 21, S_LOW = 95, V_LOW = 97
@@ -42,6 +42,12 @@ H_LOW = 175, S_LOW = 68, V_LOW = 126
 H_HI = 185, S_HI = 255, V_HI = 247
 SMOOTH=1
 """
+
+"""
+H_LOW = 40, S_LOW = 184, V_LOW = 100
+H_HI = 63, S_HI = 255, V_HI = 255
+"""
+
 cap = cv2.VideoCapture(0)
 
 def nothing(x):
@@ -64,6 +70,8 @@ cv2.createTrackbar('v_hi', 'result',0,255,nothing)
 cv2.createTrackbar('morph', 'result',0,1,nothing)
 cv2.createTrackbar('smooth', 'result',1,15,nothing)
 
+frame_num = 1
+
 while(1):
 
     _, frame = cap.read()
@@ -84,9 +92,13 @@ while(1):
     smooth = cv2.getTrackbarPos('smooth','result')
 
     # Normal masking algorithm
-    lower_blue = np.array([h, s, v])
-    upper_blue = np.array([h_hi, s_hi, v_hi])
-    
+    lower_blue = np.array([40, 184, 100])
+    upper_blue = np.array([63, 255, 255])
+
+    """
+    H_LOW = 40, S_LOW = 184, V_LOW = 100
+    H_HI = 63, S_HI = 255, V_HI = 255
+    """
 
     print("H_LOW = " + str(h) + ", " + "S_LOW = " + str(s) + ", " + "V_LOW = " + str(v))
     print("H_HI = " + str(h_hi) + ", " + "S_HI = " + str(s_hi) +", " + "V_HI = " + str(v_hi))
@@ -96,8 +108,8 @@ while(1):
 
     if morph:
         # Do Dilation and Erosion
-        kernel_close = np.ones((21,21),np.uint8)
-        kernel_open = np.ones((11, 11), np.uint8)
+        kernel_close = np.ones((11,11),np.uint8)
+        kernel_open = np.ones((5, 5), np.uint8)
         kernel_erode = np.ones((4, 4), np.uint8)
         kernel_dilate = np.ones((8, 8), np.uint8)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel_close)
@@ -106,7 +118,7 @@ while(1):
         #mask = cv2.dilate(mask, kernel_dilate, iterations=2)
 
     print ("SMOOTH=" + str(smooth))
-    mask = cv2.GaussianBlur(mask,(15,15),0)
+    #mask = cv2.GaussianBlur(mask,(15,15),0)
 
     circles = cv2.HoughCircles(mask,cv2.cv.CV_HOUGH_GRADIENT,1,1600, param1 = 50, param2 = 22)
     result = cv2.bitwise_and(frame,frame,mask = mask)
@@ -121,7 +133,11 @@ while(1):
             print (i[0], i[1])
 
     res = cv2.resize(result,None,fx=0.5, fy=0.5)
-    cv2.imshow('result',res)
+    cv2.imshow('result',mask)
+    cv2.imwrite('figures/' + str(frame_num) + '.jpg', mask)
+    time.sleep(1)
+
+    frame_num += 1
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:

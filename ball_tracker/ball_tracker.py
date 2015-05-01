@@ -32,6 +32,7 @@ class BallTracker:
 		self.gauss = gauss
 		self.iir = None # will update this in detect_ball
 		self.filter_tap = filter_tap
+		self.clf2 = joblib.load('svm/model/clf.pkl')
 
 	def get_hsv_lo(self):
 		"""
@@ -71,17 +72,28 @@ class BallTracker:
 		"""
 		self.cap.release()
 
-	def detect_ball(self, show_res=False, strat='HOUGH', morph=True, blur=True):
+	def detect_ball(self, show_res=False, strat='HSV', morph=True, blur=True):
 		"""
 		detect the ball in the current frame and return the x, y radius of ball
 		show_res: also return the resulting image with the detected circle drawn
-		strat: which detector to use (TODO)
+		strat: which detector to use (SVM vs HSV)
 		morph: perform morphological operations
 		blur: apply a blur to the mask before circle detection (usually helpful)
 		"""
-		_, frame = self.cap.read() # read a frame
-		hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV) # convert to HSV space
-		mask = cv2.inRange(hsv, self.hsv_lower, self.hsv_upper)
+		_, frame = self.cap.read() # read a frame 
+
+		if strat == 'HSV':
+			hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV) # convert to HSV space
+			mask = cv2.inRange(hsv, self.hsv_lower, self.hsv_upper)
+		else:
+			# use SVM for segmentation
+			rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+			rgb_f = rgb.astype(float)/255 # scale for classification
+			M, N, P = rgb_f.shape
+			rgb_ff = flatten(rgb_f)
+
+			mask = self.clf2.predict(rgb_ff)
+			mask = mask.reshape(M, N)
 
 		if morph:
 			# do dilation and erosion
@@ -132,7 +144,7 @@ def test():
 	bt.set_hsv_hi((178, 255, 255))
 	bt.set_hsv_lo((127,98, 118))
 	while True:
-		(state, res) = bt.detect_ball(show_res=True)
+		(state, res) = bt.detect_ball_hsv(show_res=True)
 		if state != None:
 			(x, y, r) = state
 			print (x, y, r)
@@ -144,12 +156,4 @@ def test():
 
 	bt.release_cap()
 
-test()
-
-
-
-
-
-
-
-
+#test()
