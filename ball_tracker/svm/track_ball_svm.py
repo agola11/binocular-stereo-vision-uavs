@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 '''
 track_ball_svm.py:
 	Track ball using previously trained 2-class SVM.
@@ -39,7 +41,7 @@ fps = int(cap.get(cv2.cv.CV_CAP_PROP_FPS))
 vw = cv2.VideoWriter(out, cv2.cv.FOURCC(*'XVID'), fps, (w, h))
 vw = cv2.VideoWriter(out, -1, fps, (w, h)) # initialize videowriter
 
-cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 6646)
+cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 5600)
 
 while True:
 	_, frame = cap.read()
@@ -64,7 +66,7 @@ while True:
 	if circles != None:
 		(x, y, r) = circles[0,:][0]
 		print (x, y, r)
-		print (str(frame_count) + ' ' + str(cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC))+ ' ' + str((x, y, r)), file=f)
+		#print (str(frame_count) + ' ' + str(cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC))+ ' ' + str((x, y, r)), file=f)
 		cv2.circle(frame, (x, y), r, (0,255,0), 2)
 		cv2.circle(frame,(x, y), 3 ,(0,0,255),3)
 
@@ -72,6 +74,7 @@ while True:
 
 	vw.write(frame)
 	cv2.imshow('frame',frame)
+	cv2.imwrite('frame' + str(frame_count) + '.jpg', frame)
 	k = cv2.waitKey(5) & 0xFF
 	if k == 27:
 		break
